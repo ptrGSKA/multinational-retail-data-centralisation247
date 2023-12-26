@@ -7,6 +7,7 @@ import tabula
 import yaml
 import requests
 import boto3
+import json
 
 import faulthandler
 faulthandler.enable()
@@ -40,11 +41,13 @@ class DataExtractor:
         self.tables = self.rds_db.list_db_tables()
 
         self.credentials = CredentialReader()
+        self.cleaning = DataCleaning()
 
         self.pdf_data = self.credentials.credential_extraction('Links','Link')['pdf_data']
         self.num_of_stores = self.credentials.credential_extraction('Links','Link')['num_of_stores']
         self.store_endpoint = self.credentials.credential_extraction('Links','Link')['store_endpoint']
         self.s3_address = self.credentials.credential_extraction('Links','Link')['s3_address']
+        self.json_address = self.credentials.credential_extraction('Links','Link')['json_address']
 
                 
     def read_rds_table(self, rds_db, table_name):
@@ -58,9 +61,9 @@ class DataExtractor:
             df = pd.read_sql_table(table_name, rds_db)
             df.to_csv(os.path.join(self.file_dir,f'{table_name}.csv'), sep=',', header = True)
 
-            print('Data has been sucessfully extracted from database.')
+            print(f'Data {table_name} has been sucessfully extracted from database.')
 
-            return df
+            return df           
         
         except Exception as e:
             print(e)
@@ -74,14 +77,17 @@ class DataExtractor:
             Returns a pandas dataframe.
         '''
         try:
-            df_card = tabula.read_pdf(link, pages = 'all')
+            #df_card = tabula.read_pdf(link, pages = 'all')
             tabula.convert_into(link, os.path.join(self.file_dir, 'user_card_data.csv'), output_format='csv', pages = 'all', stream=True)
+            df_card  = pd.read_csv(os.path.join(self.file_dir,'user_card_data.csv'))
 
-            print('Data has been sucessfully extracted from AWS S3 pdf document.')
+            print('User card data has been sucessfully extracted from AWS S3 pdf document.')
+
             return df_card
         
         except Exception as e:
             print(e)
+
     
     def list_number_of_stores(self, endpoint, api_header):
         '''
@@ -129,11 +135,12 @@ class DataExtractor:
             df = pd.DataFrame(df_stores)
             df.to_csv(os.path.join(self.file_dir,'stores.csv'), sep=',', header = True)
             
-            print('Data has been sucessfully extracted from the API source.')
+            print('Stores data has been sucessfully extracted from the API source.')
             return df
         
         except Exception as e:
             print(e)
+
 
     def extract_from_s3(self, address):
         '''
@@ -150,9 +157,30 @@ class DataExtractor:
 
             df = pd.read_csv(os.path.join(self.file_dir,'products.csv'))
 
-            print('Data has been sucessfully extracted from AWS S3 source.')
+            print('Products data has been sucessfully extracted from AWS S3 source.')
             return df
         
+        except Exception as e:
+            print(e)
+
+
+    def extract_json_data(self, address):
+        '''
+        This function is to retrieve the data from AWS via an API request.
+
+        Returns:
+            Returns a pandas dataframe.
+        '''
+        try:
+            response = requests.get(address)
+            repos = response.json()
+
+            df = pd.DataFrame(repos)
+            df.to_csv(os.path.join(self.file_dir,'sale_date.csv'), header = True)
+
+            print('Sales date data been sucessfully extracted from AWS S3 source.')
+            return df
+
         except Exception as e:
             print(e)
 
@@ -177,23 +205,38 @@ print('The avaialble tables in the database are: ', de.tables)
 table_id = int(input('Choose a table to extract the data from: '))
 table_name = de.tables[table_id]
 
-# First source data extraction and cleaning
-de.read_rds_table(db_instance, table_name)
-cleaning = DataCleaning()
-clean_user_df = cleaning.clean_user_data()
+# First source data extraction, cleaning and uploading to local database
+user_df = de.read_rds_table(db_instance, table_name)
+clean_user_df = de.cleaning.clean_user_data(user_df)
 de.rds_db.upload_to_db(clean_user_df, 'dim_users')
 
-# Second source data extraction and cleaning
-de.retrieve_pdf_data(de.pdf_data)
-clean_card_df = cleaning.clean_card_data()
+# Second source data extraction, cleaning and uploading to local database
+card_df = de.retrieve_pdf_data(de.pdf_data)
+clean_card_df = de.cleaning.clean_card_data(card_df)
 de.rds_db.upload_to_db(clean_card_df, 'dim_card_details')
 
-# Third source data extraction and cleaning
+# Third source data extraction, cleaning and uploading to local database
 crds = de.read_cred()
 stores = de.list_number_of_stores(de.num_of_stores, crds)
-de.retrieve_stores_data(de.store_endpoint, stores, crds)
-clean_store_df = cleaning.clean_data_store()
+store_df = de.retrieve_stores_data(de.store_endpoint, stores, crds)
+clean_store_df = de.cleaning.clean_data_store(store_df)
 de.rds_db.upload_to_db(clean_store_df, 'dim_store_details')
 
-# Fourth source data extraction and cleaning
-de.extract_from_s3(de.s3_address)
+# Fourth source data extraction, cleaning and uploading to local database 
+products_df = de.extract_from_s3(de.s3_address)
+products_conversion = de.cleaning.convert_product_weights(products_df)
+clean_products_df = de.cleaning.clean_products_data(products_conversion)
+de.rds_db.upload_to_db(clean_products_df, 'dim_products')
+
+# Fifth source data extraction, cleaning and uploading to local database
+print('The avaialble tables in the database are: ', de.tables)
+table_id = int(input('Choose a table to extract the data from: '))
+table_name = de.tables[table_id]
+orders_df = de.read_rds_table(db_instance, table_name)
+clean_orders_df = de.cleaning.clean_orders_data(orders_df)
+de.rds_db.upload_to_db(clean_orders_df, 'orders_table')
+
+# Sixth source data extraction, cleaning and uploading to local database
+sales_date_df = de.extract_json_data(de.json_address)
+clean_sales_date_df = de.cleaning.clean_sales_date(sales_date_df)
+de.rds_db.upload_to_db(clean_sales_date_df, 'dim_date_times')
