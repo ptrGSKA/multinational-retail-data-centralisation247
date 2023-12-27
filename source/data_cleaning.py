@@ -154,8 +154,8 @@ class DataCleaning:
         df['locality'] = df['locality'].str.replace('-',' ')
 
         # There is one online store where the data need to be imputed.
-        df.loc[df['address'].isnull(), ['longitude', 'latitude']] = '00.00'
-        df.loc[df['address'].isnull(), ['address', 'locality']] = 'Online Store'
+        df.loc[df['address'].isnull(), ['longitude', 'latitude']] = 0
+        df.loc[df['address'].isnull(), ['locality', 'address']] = str('Online Store')
 
         # Converting the columns into the correct type.
         df['opening_date'] = pd.to_datetime(df['opening_date'], format = 'mixed')
@@ -266,7 +266,7 @@ class DataCleaning:
         df = dataframe
 
         # Dropping columns with over 87% missing value.
-        df = df.drop(labels = ['level_0','first_name', 'last_name', '1'], axis = 1)
+        df = df.drop(labels = ['level_0', 'index', 'first_name', 'last_name', '1'], axis = 1)
 
         # Capitalizing all the alphabetical characters in the product_code column.
         df['product_code'] = df['product_code'].apply(lambda x: x.upper())

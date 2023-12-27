@@ -1,8 +1,9 @@
+from sqlalchemy import create_engine, inspect, text
+from sqlalchemy_utils import database_exists
+from cred_reader import CredentialReader
 import os
 import yaml
 import psycopg2
-from sqlalchemy import create_engine, inspect
-from cred_reader import CredentialReader
 
 
 # Class definition of the Database Connector class to communicate with the database.
@@ -70,7 +71,7 @@ class DatabaseConnector:
 
         return self.engine
 
-    def list_db_tables(self):
+    def list_db_tables(self, location):
         '''
         This function returns the available tables in the AWS RDS database.
 
@@ -79,7 +80,7 @@ class DatabaseConnector:
         '''
 
         # Initializing a database engine to the AWS database
-        self.__init_db_engine('AWS')
+        self.__init_db_engine(location)
         
         with self.engine.execution_options(isolation_level='AUTOCOMMIT').connect() as conn:
              self.inspector = inspect(self.engine)
@@ -105,6 +106,117 @@ class DatabaseConnector:
         except Exception as e:
             print(e)
         
+    def check_db_existence(self):
+        '''
+        This function checks the existence of the database.
 
+        Returns:
+            Boolean.
+        '''
+        print('Checking the existence of the database. \n')
         
+        #db_engine = 
+        self.__init_db_engine('LOCAL')
+
+        if database_exists(self.engine.url):
+            print('The local databse exists. \n')
+        else:
+            self.create_database()
+
+        return database_exists(self.engine.url)
+
+    def check_db_tables(self):
+        '''
+        This function checks the existence of the required tables in the LOCAL database.
+
+        Returns:
+            List with the difference of the required and currently existing tables.
+        '''
         
+        tables = self.list_db_tables('LOCAL')
+
+        required_tables = ['dim_users', 'dim_card_details', 'dim_store_details', 'dim_products', 'dim_orders', 'dim_date_times']
+        existing_tables = []
+
+        for table_name in tables:
+            existing_tables.append(table_name)
+        
+        intersection = set(required_tables).intersection(existing_tables)
+        difference = set(required_tables).difference(existing_tables)
+        
+        if len(intersection) > 0 and len(difference) == 0:
+            for table in intersection:
+                print(f'The following table {table} exists in the database.')
+        elif len(intersection) > 0 and len(difference) > 0:
+            for table in intersection:
+                print(f'The following table {table} exists in the database.')
+                print('\n')
+            for table in difference:
+                print(f'The following table {table} doesn\'t exists in the database and need to be created first.')
+        else:
+            for table in difference:
+                print(f'The following table {table} need to be created first.')
+        
+        return list(difference)
+    
+
+    def create_database(self):
+        '''
+        This function takes a file_name and return it's content.
+
+        Returns:
+            String - SQL query.
+        '''
+        
+        db_file = 'create_db.sql'
+        query = self.get_sql_files(db_file)
+
+        self.__execute_db_query(query)
+
+        print('Database has been sucessfully created!')
+    
+    
+    def create_tables(self, missing_tables):
+        '''
+        This function takes a list and it creates the required tables in the database based on the entries in the list if it's not empty.
+
+        Returns:
+            List of existing tables.
+        '''
+        
+        for table in missing_tables:
+            full_file_name = f'create_{table}.sql'
+            query = self.get_sql_files(full_file_name)
+            self.__execute_db_query(query)
+            print(f'Table {table} has been created.')
+            
+        return self.check_db_tables()
+    
+
+    def __execute_db_query(self, query):
+        '''
+        This function takes a list and it creates the required tables in the database based on the entries in the list if it's not empty.
+
+        Returns:
+            List of existing tables.
+        '''
+
+        with self.engine.execution_options(isolation_level='AUTOCOMMIT').connect() as conn:
+            sql = text(f"""{query}""")
+            conn.execute(sql)
+    
+
+    def get_sql_files(self, file_name):
+        '''
+        This function takes a file_name and return it's content.
+
+        Returns:
+            String - SQL query.
+        '''
+
+        with open(os.path.join(self.db_dir,file_name), mode = 'r') as file:
+            return file.read()
+    
+
+#for column in inspector.get_columns(table_name):
+#    print("Column: %s" % column['name'])

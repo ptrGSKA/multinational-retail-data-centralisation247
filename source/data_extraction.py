@@ -38,7 +38,7 @@ class DataExtractor:
         #self.db_dir = self.dir.replace('source','database')
 
         self.rds_db = DatabaseConnector()
-        self.tables = self.rds_db.list_db_tables()
+        self.tables = self.rds_db.list_db_tables('AWS')
 
         self.credentials = CredentialReader()
         self.cleaning = DataCleaning()
@@ -123,14 +123,15 @@ class DataExtractor:
 
             for store in range(0,no_stores):
                 store_endp = ''.join([store_endpoint, str(store)])
-                response2 = requests.get(store_endp, headers= crds)
-                if response2.status_code == 200:
-                    data = response2.json()
-                    df_stores.append(data)
-                    print(f'Store number {store} has been downloaded!')
-                else:
-                    print(f"Request failed with status code: {response2.status_code}")
-                    print(f"Response Text: {response2.text}")
+                s = requests.Session()
+                with s.get(store_endp, headers= crds) as response2:
+                    if response2.status_code == 200:
+                        data = response2.json()
+                        df_stores.append(data)
+                        print(f'Store number {store} has been downloaded!')
+                    else:
+                        print(f"Request failed with status code: {response2.status_code}")
+                        print(f"Response Text: {response2.text}")
 
             df = pd.DataFrame(df_stores)
             df.to_csv(os.path.join(self.file_dir,'stores.csv'), sep=',', header = True)
@@ -192,51 +193,3 @@ class DataExtractor:
             return creds
         except Exception as e:
             print(e)
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-
-#-TEST - TEST - TEST - TEST - TEST - TEST - TEST - TEST - TEST - TEST - TEST - TEST - TEST - TEST - TEST - TEST - TEST - TEST - TEST -#-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-CALLING OF THE DATA PIPELINE-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-
-
-de = DataExtractor()
-db_instance = de.rds_db.engine
-print('The avaialble tables in the database are: ', de.tables)
-table_id = int(input('Choose a table to extract the data from: '))
-table_name = de.tables[table_id]
-
-# First source data extraction, cleaning and uploading to local database
-user_df = de.read_rds_table(db_instance, table_name)
-clean_user_df = de.cleaning.clean_user_data(user_df)
-de.rds_db.upload_to_db(clean_user_df, 'dim_users')
-
-# Second source data extraction, cleaning and uploading to local database
-card_df = de.retrieve_pdf_data(de.pdf_data)
-clean_card_df = de.cleaning.clean_card_data(card_df)
-de.rds_db.upload_to_db(clean_card_df, 'dim_card_details')
-
-# Third source data extraction, cleaning and uploading to local database
-crds = de.read_cred()
-stores = de.list_number_of_stores(de.num_of_stores, crds)
-store_df = de.retrieve_stores_data(de.store_endpoint, stores, crds)
-clean_store_df = de.cleaning.clean_data_store(store_df)
-de.rds_db.upload_to_db(clean_store_df, 'dim_store_details')
-
-# Fourth source data extraction, cleaning and uploading to local database 
-products_df = de.extract_from_s3(de.s3_address)
-products_conversion = de.cleaning.convert_product_weights(products_df)
-clean_products_df = de.cleaning.clean_products_data(products_conversion)
-de.rds_db.upload_to_db(clean_products_df, 'dim_products')
-
-# Fifth source data extraction, cleaning and uploading to local database
-print('The avaialble tables in the database are: ', de.tables)
-table_id = int(input('Choose a table to extract the data from: '))
-table_name = de.tables[table_id]
-orders_df = de.read_rds_table(db_instance, table_name)
-clean_orders_df = de.cleaning.clean_orders_data(orders_df)
-de.rds_db.upload_to_db(clean_orders_df, 'orders_table')
-
-# Sixth source data extraction, cleaning and uploading to local database
-sales_date_df = de.extract_json_data(de.json_address)
-clean_sales_date_df = de.cleaning.clean_sales_date(sales_date_df)
-de.rds_db.upload_to_db(clean_sales_date_df, 'dim_date_times')

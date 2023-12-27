@@ -1,8 +1,8 @@
 CREATE TABLE IF NOT EXISTS dim_products (
 	index SERIAL UNIQUE NOT NULL PRIMARY KEY,
     product_name VARCHAR(250) NOT NULL,
-    product_price(£) NUMERIC NOT NULL,
-	weight(kg) NUMERIC NOT NULL,
+    product_price_£ NUMERIC NOT NULL,
+	weight_kg NUMERIC NOT NULL,
 	category VARCHAR(250) NOT NULL,
     EAN BIGINT NOT NULL,
 	date_added DATE NOT NULL CHECK (date_added < NOW()),

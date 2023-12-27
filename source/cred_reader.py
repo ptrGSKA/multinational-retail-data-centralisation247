@@ -8,7 +8,7 @@ class CredentialReader:
     The class is used to extract credentials safely from a multidocument yaml file.
 
     Parameters:
-
+        
     
     Args:
         
@@ -37,10 +37,8 @@ class CredentialReader:
         try:
             with open(os.path.join(self.cred_dir,'credentials.yaml'), mode = 'r') as stream:
                 creds = yaml.safe_load_all(stream)
-
                 while True:
                     cred_docs = next(creds)
-
                     for mainkey in cred_docs:
                         if mainkey == document:
                             subkeys = cred_docs[mainkey].keys()
