@@ -35,13 +35,14 @@ class DataExtractor:
         self.path =  os.path.realpath(__file__)
         self.dir = os.path.dirname(self.path)
         self.file_dir = self.dir.replace('source','data_files')
-        #self.db_dir = self.dir.replace('source','database')
 
-        self.rds_db = DatabaseConnector()
-        self.tables = self.rds_db.list_db_tables('AWS')
+        self.remote_rds_db = DatabaseConnector()
+        self.tables = self.remote_rds_db.list_db_tables('AWS')
 
         self.credentials = CredentialReader()
         self.cleaning = DataCleaning()
+
+        self.local_rds_db = DatabaseConnector()
 
         self.pdf_data = self.credentials.credential_extraction('Links','Link')['pdf_data']
         self.num_of_stores = self.credentials.credential_extraction('Links','Link')['num_of_stores']
@@ -50,7 +51,7 @@ class DataExtractor:
         self.json_address = self.credentials.credential_extraction('Links','Link')['json_address']
 
                 
-    def read_rds_table(self, rds_db, table_name):
+    def read_rds_table(self, remote_rds_db, table_name):
         '''
         This function is to read database tables from the AWS RDS database.
 
@@ -58,7 +59,7 @@ class DataExtractor:
             Returns a pandas dataframe.
         '''
         try:
-            df = pd.read_sql_table(table_name, rds_db)
+            df = pd.read_sql_table(table_name, remote_rds_db)
             df.to_csv(os.path.join(self.file_dir,f'{table_name}.csv'), sep=',', header = True)
 
             print(f'Data {table_name} has been sucessfully extracted from database.')
@@ -66,7 +67,9 @@ class DataExtractor:
             return df           
         
         except Exception as e:
+            print('--------------------------------------------------------')
             print(e)
+            print('--------------------------------------------------------')
     
         
     def retrieve_pdf_data(self, link):
@@ -86,7 +89,9 @@ class DataExtractor:
             return df_card
         
         except Exception as e:
+            print('--------------------------------------------------------')
             print(e)
+            print('--------------------------------------------------------')
 
     
     def list_number_of_stores(self, endpoint, api_header):
@@ -108,7 +113,9 @@ class DataExtractor:
             return data['number_stores']
         
         except Exception as e:
+            print('--------------------------------------------------------')
             print(e)
+            print('--------------------------------------------------------')
             
 
     def retrieve_stores_data(self, store_endpoint, no_stores, crds):
@@ -140,7 +147,9 @@ class DataExtractor:
             return df
         
         except Exception as e:
+            print('--------------------------------------------------------')
             print(e)
+            print('--------------------------------------------------------')
 
 
     def extract_from_s3(self, address):
@@ -162,7 +171,9 @@ class DataExtractor:
             return df
         
         except Exception as e:
+            print('--------------------------------------------------------')
             print(e)
+            print('--------------------------------------------------------')
 
 
     def extract_json_data(self, address):
@@ -183,7 +194,9 @@ class DataExtractor:
             return df
 
         except Exception as e:
+            print('--------------------------------------------------------')
             print(e)
+            print('--------------------------------------------------------')
 
     
     def read_cred(self):
@@ -192,4 +205,6 @@ class DataExtractor:
 
             return creds
         except Exception as e:
+            print('--------------------------------------------------------')
             print(e)
+            print('--------------------------------------------------------')
