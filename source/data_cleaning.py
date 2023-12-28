@@ -154,7 +154,7 @@ class DataCleaning:
         df['locality'] = df['locality'].str.replace('-',' ')
 
         # There is one online store where the data need to be imputed.
-        df.loc[df['address'].isnull(), ['longitude', 'latitude']] = 0
+        df.loc[df['address'].isnull(), ['longitude', 'latitude']] = np.nan
         df.loc[df['address'].isnull(), ['locality', 'address']] = str('Online Store')
 
         # Converting the columns into the correct type.

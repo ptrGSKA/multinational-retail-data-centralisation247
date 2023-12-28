@@ -1,3 +1,10 @@
+UPDATE dim_store_details
+SET address = 'N/A',
+	locality = 'N/A',
+	longitude = NULL,
+	latitude = NULL
+WHERE store_type = 'Web Portal'
+
 ALTER TABLE dim_store_details
     ALTER COLUMN longitude TYPE FLOAT USING longitude::double precision,
     ALTER COLUMN locality TYPE VARCHAR(255),

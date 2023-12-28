@@ -1,12 +1,12 @@
 # Multinational Retail Data Centralization Project
 
-You work for a multinational company that sells various goods across the globe.
+This work for a multinational company that sells various goods across the globe.
 
 Currently, their sales data is spread across many different data sources making it not easily accessible or analysable by current members of the team.
 
-In an effort to become more data-driven, your organisation would like to make its sales data accessible from one centralised location.
+In an effort to become more data-driven, the organisation would like to make its sales data accessible from one centralised location.
 
-Your first goal will be to produce a system that stores the current company data in a database so that it's accessed from one centralised location and acts as a single source of truth for sales data.
+The first goal will be to produce a system that stores the current company data in a database so that it's accessed from one centralised location and acts as a single source of truth for sales data.
 
 # Table of Contents
 1. [Description](#description)
@@ -21,7 +21,13 @@ Your first goal will be to produce a system that stores the current company data
 
 # Description
 
-This is an implementation of the Hangman game, where the computer thinks of a word and the user tries to guess it.
+The project is to develop a system - data pipeline - that extracts information from various sources including API requests, AWS S3 and AWS database. After the extraction the the data needs to be cleaned and uploded to a centralized database - in this case a local postgresql database - where later analysis can be performed on the data to gain valuable insights and make recommendations.
+
+The code first inspects the local database, searching the existence of the database and creates it if doesn't exist and also creates the required tables for the data. If the database exists at the first place it still performs a check on the existence of the tables and creates the ones that are not present. After this the code starts to request information from a remote source to query about the database. Upon confirming the required table to extract it performs the extraction, saving and cleaning of the data and then it uploads it to the database.
+
+The extraction of further data continues with extracting information from a pdf file, downloading data via an API request, AWS S3 bucket, AWS dtabase again and finally it performs an other API request to download clean and to upload the data into the local database.
+
+---WIP---
 
 ## Milestone 1
 
@@ -31,7 +37,8 @@ The first milestone is the setup of the github repository.
 
 ----WIP----
 
-The creation of the main source files including ...
+TThe construction of the core code files including database communication related, data cleaning, data extraction and credential reader python files.
+This section of the project also encompassed the establishment of the local database and the creation of relevant tables to store the project's data.
 The creation of the local database for the data that has been extracted from various sources.
 SQL files that contains the table creation queries.
 
@@ -57,24 +64,27 @@ The files for the project can be found in the ... folder.
 ```
 .
 ├── creds
-│   ├── credentials.yaml            -------> # ignored
-│   └── dummy_credentials.yaml
+│   ├── credentials.yaml
+│   └── dummy_credentials.yaml
 ├── database
-│   ├── create_dim_date_times.sql
-│   ├── create_orders.sql
-│   ├── create_products.sql
-│   ├── create_store.sql
-│   ├── create_user_card_table.sql
-│   ├── create_user_table.sql
-│   ├── db_create_db.sql
-│   └── yaml_cred_extraction_test.py
+│   ├── alter_dim_store_details.sql
+│   ├── alter_dim_users_table.sql
+│   ├── alter_orders_table.sql
+│   ├── create_db.sql
+│   ├── create_dim_card_details.sql
+│   ├── create_dim_date_times.sql
+│   ├── create_dim_orders.sql
+│   ├── create_dim_products.sql
+│   ├── create_dim_store_details.sql
+│   ├── create_dim_users.sql
+│   └── yaml_cred_extraction_test.py
 ├── data_files
-│   ├── legacy_users.csv
-│   ├── orders_table.csv
-│   ├── products.csv
-│   ├── sale_date.csv
-│   ├── stores.csv
-│   └── user_card_data.csv
+│   ├── legacy_users.csv
+│   ├── orders_table.csv
+│   ├── products.csv
+│   ├── sale_date.csv
+│   ├── stores.csv
+│   └── user_card_data.csv
 ├── Licence.txt
 ├── README.md
 └── source
@@ -82,11 +92,12 @@ The files for the project can be found in the ... folder.
     ├── database_utils.py
     ├── data_cleaning.py
     ├── data_extraction.py
-    └── __pycache__
-        ├── cred_reader.cpython-311.pyc
-        ├── database_utils.cpython-311.pyc
-        └── data_cleaning.cpython-311.pyc
-
+    ├── __pycache__
+    │   ├── cred_reader.cpython-311.pyc
+    │   ├── database_utils.cpython-311.pyc
+    │   ├── data_cleaning.cpython-311.pyc
+    │   └── data_extraction.cpython-311.pyc
+    └── start_data_pipeline.py
 ```
 
 # Licence

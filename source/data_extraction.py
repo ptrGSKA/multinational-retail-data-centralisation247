@@ -135,7 +135,7 @@ class DataExtractor:
                     if response2.status_code == 200:
                         data = response2.json()
                         df_stores.append(data)
-                        print(f'Store number {store} has been downloaded!')
+                        print(f'Store number {store} has been downloaded!', end='\r')
                     else:
                         print(f"Request failed with status code: {response2.status_code}")
                         print(f"Response Text: {response2.text}")
