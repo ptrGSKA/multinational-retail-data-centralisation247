@@ -1,6 +1,5 @@
 import data_extraction as dex
 import time
-import sys
 import warnings
 
 warnings.filterwarnings('ignore') 
@@ -28,13 +27,19 @@ if __name__ == '__main__':
         else:
             print('All tables are present in the local database - DB preparation has been finished')
     else:
-        print('Something went wrong!')
+        de.local_rds_db.create_database()
+
+        table_missmatch = de.local_rds_db.check_db_tables()
+        if len(table_missmatch) > 0:
+            last_table_check = de.local_rds_db.create_tables(table_missmatch)
+
+            if len(last_table_check) == 0:
+                print('All tables are present in the local database - DB preparation has been finished')
 
     print('Extracting data is starting in: ')
 
     for i in range(5,0,-1):
-        sys.stdout.write(str(i)+' ')
-        sys.stdout.flush()
+        print(f'Download starts in - {i}', end = '\r')
         time.sleep(1)
 
     print('\n')
@@ -73,7 +78,7 @@ if __name__ == '__main__':
     table_name = de.tables[table_id]
     orders_df = de.read_rds_table(db_instance, table_name)
     clean_orders_df = de.cleaning.clean_orders_data(orders_df)
-    de.remote_rds_db.upload_to_db(clean_orders_df, 'dim_orders')
+    de.remote_rds_db.upload_to_db(clean_orders_df, 'orders_table')
 
     # Sixth source data extraction, cleaning and uploading to local database
     sales_date_df = de.extract_json_data(de.json_address)

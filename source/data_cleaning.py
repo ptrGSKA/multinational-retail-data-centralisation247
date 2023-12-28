@@ -114,7 +114,7 @@ class DataCleaning:
 
         # Converting the columns into their final types.
         df['date_payment_confirmed'] = pd.to_datetime(df['date_payment_confirmed'], format = 'mixed')
-        df['expiry_date'] = pd.to_datetime(df['expiry_date'], format = '%m/%y')
+                #df['expiry_date'] = pd.to_datetime(df['expiry_date'], format = '%m/%y')    <----UNECESSARY
         df['card_number'] = df['card_number'].astype('int64')
 
         print('Data user_card_data dataframe has been sucessfully cleaned.')
@@ -159,12 +159,12 @@ class DataCleaning:
 
         # Converting the columns into the correct type.
         df['opening_date'] = pd.to_datetime(df['opening_date'], format = 'mixed')
-        #df['longitude'] = df['longitude'].astype('float32')
-        df['latitude'] = df['latitude'].astype('float32')
-        df['staff_numbers'] = df['staff_numbers'].astype('int16')
-        df['country_code'] = df['country_code'].astype('category')
-        df['continent'] = df['continent'].astype('category')
-        df['store_type'] = df['store_type'].astype('category')
+                #df['longitude'] = df['longitude'].astype('float32')        <----UNECESSARY
+                #df['latitude'] = df['latitude'].astype('float32')          <----UNECESSARY
+        df['staff_numbers'] = df['staff_numbers'].astype('int16')       
+                #df['country_code'] = df['country_code'].astype('category') <----UNECESSARY
+                #df['continent'] = df['continent'].astype('category')       <----UNECESSARY
+                #df['store_type'] = df['store_type'].astype('category')     <----UNECESSARY
 
         print('Store dataframe has been sucessfully cleaned.')
 
@@ -246,16 +246,16 @@ class DataCleaning:
 
         # Removing the pound sign from the product price column and renaming the column to reflect that all units are in pound(£).
         # Also renaming the weight ccolumn to reflect that all units are in kg.
-        df['product_price'] = df['product_price'].str.replace('£','')
-        df.rename(columns = {'product_price':'product_price_(£)', 'weight':'weight(kg)'})
+        #df['product_price'] = df['product_price'].str.replace('£','')
+        #df.rename(columns = {'product_price':'product_price_(£)', 'weight':'weight(kg)'})
 
         # Converting all the letters in the product code column to uppercase.
         df['product_code'] = df['product_code'].apply(lambda x: x.upper())
 
-        df['product_price'] = df['product_price'].astype('float')  
-        df['category'] = df['category'].astype('category')
+                #df['product_price'] = df['product_price'].astype('float')  <----UNECESSARY
+                #df['category'] = df['category'].astype('category')         <----UNECESSARY
         df['date_added'] = pd.to_datetime(df['date_added'], format = 'mixed')
-        df['removed'] = df['removed'].astype('category')
+                #df['removed'] = df['removed'].astype('category')           <----UNECESSARY
 
         print('Products dataframe has been sucessfully cleaned.')
         
@@ -290,7 +290,7 @@ class DataCleaning:
 
         # Converting columns into the final data type.
         df['timestamp'] = pd.to_datetime(df['timestamp'], format = '%H:%M:%S')
-        df['time_period'] = df['time_period'].astype('category')
+                #df['time_period'] = df['time_period'].astype('category')   <----UNECESSARY
         df['month'] = df['month'].astype('int16')
         df['year'] = df['year'].astype('int32')
         df['day'] = df['day'].astype('int16')

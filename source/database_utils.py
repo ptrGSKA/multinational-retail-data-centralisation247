@@ -99,7 +99,7 @@ class DatabaseConnector:
             # Initializing a database engine to the LOCAL database
             self.__init_db_engine('LOCAL')
 
-            dataframe_to_upload.to_sql(table_name_to_upload, self.engine, if_exists='replace')
+            dataframe_to_upload.to_sql(table_name_to_upload, self.engine, if_exists='append')
 
             print(f'Data has been sucessfully uploaded to the {table_name_to_upload} table in the local database.')
 
@@ -135,7 +135,7 @@ class DatabaseConnector:
         
         tables = self.list_db_tables('LOCAL')
 
-        required_tables = ['dim_users', 'dim_card_details', 'dim_store_details', 'dim_products', 'dim_orders', 'dim_date_times']
+        required_tables = ['dim_users', 'dim_card_details', 'dim_store_details', 'dim_products', 'orders_table', 'dim_date_times']
         existing_tables = []
 
         for table_name in tables:
@@ -170,7 +170,6 @@ class DatabaseConnector:
         
         db_file = 'create_db.sql'
         query = self.get_sql_files(db_file)
-
         self.__execute_db_query(query)
 
         print('Database has been sucessfully created!')

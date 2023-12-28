@@ -27,24 +27,21 @@ The code first inspects the local database, searching the existence of the datab
 
 The extraction of further data continues with extracting information from a pdf file, downloading data via an API request, AWS S3 bucket, AWS dtabase again and finally it performs an other API request to download clean and to upload the data into the local database.
 
----WIP---
-
 ## Milestone 1
 
 The first milestone is the setup of the github repository.
 
 ## Milestone 2
 
-----WIP----
-
-TThe construction of the core code files including database communication related, data cleaning, data extraction and credential reader python files.
-This section of the project also encompassed the establishment of the local database and the creation of relevant tables to store the project's data.
-The creation of the local database for the data that has been extracted from various sources.
-SQL files that contains the table creation queries.
+The construction of the core code files including database communication related, data cleaning, data extraction and credential reader python files.
+This section of the project also encompassed the establishment of the local database and the creation of relevant tables to store the project's data that has been extracted from various sources.
+The created tables will be altered later to for the correct data type.
 
 ## Milestone 3
 
----WIP----
+Setting up the star-based databse schema by altering the table columns data type. Cleaning the data where necessar and adding new columns based on existing data.
+This section also contains the addition of Primary and Foreign Keys to tables.
+
 
 ## Milestone 4
 
@@ -67,17 +64,21 @@ The files for the project can be found in the ... folder.
 │   ├── credentials.yaml
 │   └── dummy_credentials.yaml
 ├── database
+│   ├── alter_all_tables_foreign_key.sql
+│   ├── alter_all_tables_primary_keys.sql
+│   ├── alter_dim_card_details.sql
+│   ├── alter_dim_date_times.sql
+│   ├── alter_dim_products.sql
 │   ├── alter_dim_store_details.sql
 │   ├── alter_dim_users_table.sql
 │   ├── alter_orders_table.sql
 │   ├── create_db.sql
 │   ├── create_dim_card_details.sql
 │   ├── create_dim_date_times.sql
-│   ├── create_dim_orders.sql
 │   ├── create_dim_products.sql
 │   ├── create_dim_store_details.sql
 │   ├── create_dim_users.sql
-│   └── yaml_cred_extraction_test.py
+│   └── create_orders_table.sql
 ├── data_files
 │   ├── legacy_users.csv
 │   ├── orders_table.csv
