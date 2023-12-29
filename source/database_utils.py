@@ -4,6 +4,7 @@ from cred_reader import CredentialReader
 import os
 import yaml
 import psycopg2
+import pandas as pd
 
 
 # Class definition of the Database Connector class to communicate with the database.
@@ -31,7 +32,10 @@ class DatabaseConnector:
         '''
         self.path =  os.path.realpath(__file__)
         self.dir = os.path.dirname(self.path)
-        self.db_dir = self.dir.replace('source','database')
+        self.db_dir_create = self.dir.replace('source','database/create_tables')
+        self.db_dir_alter = self.dir.replace('source','database/alter_tables')
+        self.db_dir_select = self.dir.replace('source','database/select_query')
+        self.db_dir_result = self.dir.replace('source', 'database/query_results')
 
         self.credentials = CredentialReader()
 
@@ -135,14 +139,16 @@ class DatabaseConnector:
         
         tables = self.list_db_tables('LOCAL')
 
-        required_tables = ['dim_users', 'dim_card_details', 'dim_store_details', 'dim_products', 'orders_table', 'dim_date_times']
+        db_tables = self.credentials.credential_extraction('Database', 'TABLES')
+        
+        self.required_tables = list(db_tables.values())
         existing_tables = []
 
         for table_name in tables:
             existing_tables.append(table_name)
         
-        intersection = set(required_tables).intersection(existing_tables)
-        difference = set(required_tables).difference(existing_tables)
+        intersection = set(self.required_tables).intersection(existing_tables)
+        difference = set(self.required_tables).difference(existing_tables)
         
         if len(intersection) > 0 and len(difference) == 0:
             for table in intersection:
@@ -169,7 +175,7 @@ class DatabaseConnector:
         '''
         
         db_file = 'create_db.sql'
-        query = self.get_sql_files(db_file)
+        query = self.__get_sql_files(db_file)
         self.__execute_db_query(query)
 
         print('Database has been sucessfully created!')
@@ -185,7 +191,7 @@ class DatabaseConnector:
         
         for table in missing_tables:
             full_file_name = f'create_{table}.sql'
-            query = self.get_sql_files(full_file_name)
+            query = self.__get_sql_files(full_file_name)
             self.__execute_db_query(query)
             print(f'Table {table} has been created.')
             
@@ -202,10 +208,28 @@ class DatabaseConnector:
 
         with self.engine.execution_options(isolation_level='AUTOCOMMIT').connect() as conn:
             sql = text(f"""{query}""")
-            conn.execute(sql)
-    
+            result = conn.execute(sql)
 
-    def get_sql_files(self, file_name):
+            return result
+        
+    
+    def __execute_db_query_pandas(self,query):
+        '''
+        This function takes a list and it creates the required tables in the database based on the entries in the list if it's not empty.
+
+        Returns:
+            List of existing tables.
+        '''
+
+        with self.engine.execution_options(isolation_level='AUTOCOMMIT').connect() as conn:
+            sql = text(f"""{query}""")
+            result = pd.read_sql_query(sql,conn)
+
+            return result
+
+
+
+    def __get_sql_files(self, file_name):
         '''
         This function takes a file_name and return it's content.
 
@@ -213,9 +237,90 @@ class DatabaseConnector:
             String - SQL query.
         '''
 
-        with open(os.path.join(self.db_dir,file_name), mode = 'r') as file:
+        dir = ''
+
+        if file_name.split('_')[0] == 'create':
+            dir = self.db_dir_create
+        elif file_name.split('_')[0] == 'alter':
+            dir = self.db_dir_alter
+        elif file_name.split('_')[0] == 'select':
+            dir = self.db_dir_select
+
+        with open(os.path.join(dir, file_name), mode = 'r') as file:
             return file.read()
+        
+    def alter_tables_data_types(self):
+        '''
+        This function performs the execution of the data type alteration queries.
+
+        Returns:
+            None.
+        '''
+
+        for table in self.required_tables:
+            full_file_name = f'alter_{table}.sql'
+            query = self.__get_sql_files(full_file_name)
+            self.__execute_db_query(query)
+            print(f'Table {table} has been altered.')
+
+
+    def alter_tables_keys(self):
+        '''
+        This function performs the execution of the tables primary and foreign key creation queries.
+
+        Returns:
+            None.
+        '''
+
+        alter_keys = ['tables_primary_key', 'tables_foreign_key']
+
+        for table in alter_keys:
+            full_file_name = f'alter_{table}.sql'
+            query = self.__get_sql_files(full_file_name)
+            self.__execute_db_query(query)
+            print('Tables have been altered according to the sql file.')
+
     
+    def select_query(self):
+        '''
+        This function reads the files from the select_query directory and performs the execution of each file and the results are saved in the query_result diectory as csv files.
+
+        Returns:
+            None.
+        '''
+        
+        query_files = os.listdir(self.db_dir_select)
+
+        for q_file in query_files:
+            if q_file.split('_')[0] == 'select':
+                query = self.__get_sql_files(q_file)
+                result = self.__execute_db_query_pandas(query)
+
+                file_name = q_file.split('.')[0]
+                result.to_csv(os.path.join(self.db_dir_result, file_name+'.csv'), sep=',', header = True)
+                #self.__write_query_to_txt(file_name, result.fetchall())
+                print(f'The result of the query has been written in the {file_name}.csv file in the query_results folder.')
+            else:
+                print(' The file is not a selection query!')
+                exit
+        
+    '''
+    def __write_query_to_txt(self, file_name, result_query):
+        
+        This function .
+
+        Returns:
+            None.
+        
+
+        result_file_name = f'{file_name}.txt'
+
+        with open(os.path.join(self.db_dir_result, result_file_name), mode = 'w') as file:
+            for record in result_query:
+                file.writelines(str(record)+'\n')
+    '''
+
+
 
 #for column in inspector.get_columns(table_name):
 #    print("Column: %s" % column['name'])

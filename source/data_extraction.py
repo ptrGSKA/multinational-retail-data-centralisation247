@@ -49,7 +49,7 @@ class DataExtractor:
         self.store_endpoint = self.credentials.credential_extraction('Links','Link')['store_endpoint']
         self.s3_address = self.credentials.credential_extraction('Links','Link')['s3_address']
         self.json_address = self.credentials.credential_extraction('Links','Link')['json_address']
-
+        
                 
     def read_rds_table(self, remote_rds_db, table_name):
         '''
@@ -72,6 +72,7 @@ class DataExtractor:
             print('--------------------------------------------------------')
     
         
+
     def retrieve_pdf_data(self, link):
         '''
         This function is to retrieve a pdf document from AWS S3.

@@ -8,6 +8,6 @@ CREATE TABLE IF NOT EXISTS dim_store_details (
 	opening_date DATE NOT NULL CHECK (opening_date < NOW()),
 	store_type  VARCHAR(100) NOT NULL,
     latitude VARCHAR(50),
-	country_code VARCHAR(6) NOT NULL,
+	country_code VARCHAR(6),
 	continent VARCHAR(100) NOT NULL
 );

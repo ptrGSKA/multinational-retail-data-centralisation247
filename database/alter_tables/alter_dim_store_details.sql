@@ -1,6 +1,7 @@
 UPDATE dim_store_details
 SET address = 'N/A',
 	locality = 'N/A',
+    country_code = NULL,
 	longitude = NULL,
 	latitude = NULL
 WHERE store_type = 'Web Portal';
