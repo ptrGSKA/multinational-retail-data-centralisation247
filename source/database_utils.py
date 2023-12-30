@@ -2,12 +2,10 @@ from sqlalchemy import create_engine, inspect, text
 from sqlalchemy_utils import database_exists
 from cred_reader import CredentialReader
 import os
-import yaml
-import psycopg2
 import pandas as pd
 
 
-# Class definition of the Database Connector class to communicate with the database.
+# Class definition of the DatabaseConnector class that perform the communication with the database.
 class DatabaseConnector:
     '''
     The class is used to communicate with the database to query and upload data to and from it.
@@ -23,6 +21,17 @@ class DatabaseConnector:
         __read_db_creds(self): Function that reads database credentials.
         __init_db_engine(self): Function to initialize database connection.
         list_db_tables(self): Function that reads the available tables from the database.
+        upload_to_db():
+        check_db_existence():
+        check_db_tables():
+        create_database():
+        create_tables():
+        __execute_db_query():
+        __execute_db_query_pandas():
+        __get_sql_files():
+        alter_tables_data_types():
+        alter_tables_keys():
+        select_query():
     '''
 
     # Class constructor
@@ -304,22 +313,6 @@ class DatabaseConnector:
                 print(' The file is not a selection query!')
                 exit
         
-    '''
-    def __write_query_to_txt(self, file_name, result_query):
-        
-        This function .
-
-        Returns:
-            None.
-        
-
-        result_file_name = f'{file_name}.txt'
-
-        with open(os.path.join(self.db_dir_result, result_file_name), mode = 'w') as file:
-            for record in result_query:
-                file.writelines(str(record)+'\n')
-    '''
-
 
 
 #for column in inspector.get_columns(table_name):

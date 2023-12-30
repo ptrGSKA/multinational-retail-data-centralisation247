@@ -14,6 +14,7 @@ class CredentialReader:
         
 
     Methods:
+        __init__():
         credential_extraction(): 
     '''
 

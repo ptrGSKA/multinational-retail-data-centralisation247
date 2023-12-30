@@ -1,13 +1,12 @@
 from database_utils import DatabaseConnector
 from data_cleaning import DataCleaning
 from cred_reader import CredentialReader
+from decorator_class import DecoratorClass
 import pandas as pd
 import os
 import tabula
-import yaml
 import requests
 import boto3
-import json
 
 import faulthandler
 faulthandler.enable()
@@ -24,7 +23,19 @@ class DataExtractor:
         
 
     Methods:
-        
+        __init__():
+        read_rds_table():
+        retrieve_pdf_data():
+        list_number_of_stores():
+        retrieve_stores_data():
+        extract_from_s3():
+        extract_json_data():
+        extract_first_source():
+        extract_second_source():
+        extract_third_source():
+        extract_forth_source():
+        extract_fifth_source():
+        extract_sixth_source():
     '''
 
     # Class constructor
@@ -41,7 +52,6 @@ class DataExtractor:
 
         self.credentials = CredentialReader()
         self.cleaning = DataCleaning()
-
         self.local_rds_db = DatabaseConnector()
 
         self.pdf_data = self.credentials.credential_extraction('Links','Link')['pdf_data']
@@ -49,6 +59,7 @@ class DataExtractor:
         self.store_endpoint = self.credentials.credential_extraction('Links','Link')['store_endpoint']
         self.s3_address = self.credentials.credential_extraction('Links','Link')['s3_address']
         self.json_address = self.credentials.credential_extraction('Links','Link')['json_address']
+        self.creds = self.credentials.credential_extraction('Creds', 'API')
         
                 
     def read_rds_table(self, remote_rds_db, table_name):
@@ -67,9 +78,7 @@ class DataExtractor:
             return df           
         
         except Exception as e:
-            print('--------------------------------------------------------')
             print(e)
-            print('--------------------------------------------------------')
     
         
 
@@ -90,9 +99,7 @@ class DataExtractor:
             return df_card
         
         except Exception as e:
-            print('--------------------------------------------------------')
             print(e)
-            print('--------------------------------------------------------')
 
     
     def list_number_of_stores(self, endpoint, api_header):
@@ -114,9 +121,7 @@ class DataExtractor:
             return data['number_stores']
         
         except Exception as e:
-            print('--------------------------------------------------------')
             print(e)
-            print('--------------------------------------------------------')
             
 
     def retrieve_stores_data(self, store_endpoint, no_stores, crds):
@@ -148,9 +153,7 @@ class DataExtractor:
             return df
         
         except Exception as e:
-            print('--------------------------------------------------------')
             print(e)
-            print('--------------------------------------------------------')
 
 
     def extract_from_s3(self, address):
@@ -172,9 +175,7 @@ class DataExtractor:
             return df
         
         except Exception as e:
-            print('--------------------------------------------------------')
             print(e)
-            print('--------------------------------------------------------')
 
 
     def extract_json_data(self, address):
@@ -195,17 +196,44 @@ class DataExtractor:
             return df
 
         except Exception as e:
-            print('--------------------------------------------------------')
             print(e)
-            print('--------------------------------------------------------')
 
-    
-    def read_cred(self):
-        try:
-            creds = self.credentials.credential_extraction('Creds', 'API')
 
-            return creds
-        except Exception as e:
-            print('--------------------------------------------------------')
-            print(e)
-            print('--------------------------------------------------------')
+    @DecoratorClass
+    def extract_first_source(self):
+        user_df = self.read_rds_table(self.remote_rds_db.engine, self.tables[1])
+        clean_user_df = self.cleaning.clean_user_data(user_df)
+        self.local_rds_db.upload_to_db(clean_user_df, 'dim_users')
+
+    @DecoratorClass
+    def extract_second_source(self):
+        card_df = self.retrieve_pdf_data(self.pdf_data)
+        clean_card_df = self.cleaning.clean_card_data(card_df)
+        self.local_rds_db.upload_to_db(clean_card_df, 'dim_card_details')
+
+    @DecoratorClass
+    def extract_third_source(self):
+        stores = self.list_number_of_stores(self.num_of_stores, self.creds)
+        store_df = self.retrieve_stores_data(self.store_endpoint, stores, self.creds)
+        clean_store_df = self.cleaning.clean_data_store(store_df)
+        self.local_rds_db.upload_to_db(clean_store_df, 'dim_store_details')
+
+    @DecoratorClass
+    def extract_forth_source(self):
+        products_df = self.extract_from_s3(self.s3_address)
+        products_conversion = self.cleaning.convert_product_weights(products_df)
+        clean_products_df = self.cleaning.clean_products_data(products_conversion)
+        self.local_rds_db.upload_to_db(clean_products_df, 'dim_products')
+
+    @DecoratorClass
+    def extract_fifth_source(self):
+        print(f'Table {self.tables[2]} is being extracted.')
+        orders_df = self.read_rds_table(self.remote_rds_db.engine, self.tables[2])
+        clean_orders_df = self.cleaning.clean_orders_data(orders_df)
+        self.local_rds_db.upload_to_db(clean_orders_df, 'orders_table')
+
+    @DecoratorClass
+    def extract_sixth_source(self):
+        sales_date_df = self.extract_json_data(self.json_address)
+        clean_sales_date_df = self.cleaning.clean_sales_date(sales_date_df)
+        self.local_rds_db.upload_to_db(clean_sales_date_df, 'dim_date_times')

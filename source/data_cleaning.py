@@ -4,7 +4,7 @@ import numpy as np
 import re
 
 
-# Class definition of the Data Cleaning class for cleaning data for the project.
+# Class definition of the DataCleaning class for cleaning the extracted data for the project.
 class DataCleaning:
     '''
     The class is used to clean the data extracted from various sources.
@@ -16,9 +16,15 @@ class DataCleaning:
         
 
     Methods:
+        __init__():
         clean_user_data(): 
         clean_card_data(): 
-        clean_data_store(): 
+        clean_data_store():
+        convert_product_weights():
+        clean_products_data():
+        clean_orders_data():
+        clean_sales_data():
+
     '''
 
     # Class constructor
@@ -246,8 +252,8 @@ class DataCleaning:
 
         # Removing the pound sign from the product price column and renaming the column to reflect that all units are in pound(£).
         # Also renaming the weight ccolumn to reflect that all units are in kg.
-        #df['product_price'] = df['product_price'].str.replace('£','')
-        #df.rename(columns = {'product_price':'product_price_(£)', 'weight':'weight(kg)'})
+                #df['product_price'] = df['product_price'].str.replace('£','')
+                #df.rename(columns = {'product_price':'product_price_(£)', 'weight':'weight(kg)'})
 
         # Converting all the letters in the product code column to uppercase.
         df['product_code'] = df['product_code'].apply(lambda x: x.upper())
