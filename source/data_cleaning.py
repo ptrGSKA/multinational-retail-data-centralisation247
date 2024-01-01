@@ -4,26 +4,21 @@ import numpy as np
 import re
 
 
-# Class definition of the DataCleaning class for cleaning the extracted data for the project.
+# Class definition of the DataCleaning class.
 class DataCleaning:
     '''
-    The class is used to clean the data extracted from various sources.
-
-    Parameters:
-
-    
-    Args:
-        
+    The class is used to clean the data extracted from various sources. Each method cleans 
+    exactly one dataframe and return it.      
 
     Methods:
-        __init__():
-        clean_user_data(): 
-        clean_card_data(): 
-        clean_data_store():
-        convert_product_weights():
-        clean_products_data():
-        clean_orders_data():
-        clean_sales_data():
+        __init__(): class constructor
+        clean_user_data(): the function takes a dataframe as an argument and performs the legacy_user data cleaning
+        clean_card_data(): the function takes a dataframe as an argument and performs the user_card data cleaning
+        clean_data_store(): the function takes a dataframe as an argument and performs the stores data cleaning
+        convert_product_weights(): the function takes a dataframe as an argument and performs the conversion of each weight type to kg
+        clean_products_data(): the function takes a dataframe as an argument and performs the rest of the products data cleaning
+        clean_orders_data(): the function takes a dataframe as an argument and performs the orders table cleaning
+        clean_sales_data(): the function takes a dataframe as an argument and performs the sales data cleaning
 
     '''
 
@@ -31,6 +26,14 @@ class DataCleaning:
     def __init__(self) -> None:
         '''
         The constructor initializes the attributes that necessary for the class instances.
+
+        Args:
+            path: real path to the source file where it was called
+            dir: the directory of the file
+            file_dir: full path pointing to the directory of the data_files in any operating system
+
+        Returns:
+            None
         '''
         self.path =  os.path.realpath(__file__)
         self.dir = os.path.dirname(self.path)
@@ -38,8 +41,14 @@ class DataCleaning:
 
     def clean_user_data(self, dataframe):
         '''
-        The function cleans the legacy user dataframe. Removes NULL values, leading or trailing white spaces, special characters,
-        removes unnecessary columns and rows.
+        The function takes a dataframe as an argument and performs the cleaning of the legacy user dataframe.
+        Removes NULL values, special characters if any present , removes unnecessary columns and rows.
+
+        Args:
+            dataframe: the dataframe to clean
+        
+        Returns:
+            The cleaned dataframe.
         '''
 
         df = dataframe
@@ -52,16 +61,16 @@ class DataCleaning:
         df = df.drop(labels = 'index', axis = 1)
 
 
-        # Removing digits and special characters from the first name, last name, country and country code columns as these should not contain anything else just alphabetical characters.
+        # Removing digits and special characters from the first name, last name, country and country code columns if any as these should not contain anything else just alphabetical characters.
         pattern = "[^A-Za-z\s]+"
 
-        df['first_name'] = df['first_name'].apply(lambda x: re.sub(pattern, '', x))
-        df['last_name'] = df['last_name'].apply(lambda x: re.sub(pattern, '', x))
-        df['country'] = df['country'].apply(lambda x: re.sub(pattern, '', x))
-        df['country_code'] = df['country_code'].apply(lambda x: re.sub(pattern, '', x))
+        df.loc[:,'first_name'] = df['first_name'].apply(lambda x: re.sub(pattern, '', x))
+        df.loc[:,'last_name'] = df['last_name'].apply(lambda x: re.sub(pattern, '', x))
+        df.loc[:,'country'] = df['country'].apply(lambda x: re.sub(pattern, '', x))
+        df.loc[:,'country_code'] = df['country_code'].apply(lambda x: re.sub(pattern, '', x))
 
         # Removing \n (new line) characters from address
-        df['address'] = df['address'].str.replace('\n', ' ')
+        df.loc[:,'address'] = df['address'].str.replace('\n', ' ')
 
         # Removing rows where there is no real data present only gibberish, using the country column to find those rows as there are onyl three countries present in the dataframe.
         countries = ['United Kingdom', 'United States', 'Germany']
@@ -69,7 +78,7 @@ class DataCleaning:
         df = df[~df.index.isin(mask2.index)]
 
         # Fixing the country codes for the countries
-        df['country_code'] = df['country_code'].str.replace('GGB', 'GB')
+        df.loc[:,'country_code'] = df['country_code'].str.replace('GGB', 'GB')
         df['country_code'] = pd.Categorical(df['country_code'])
 
         # Converting the date of borth and joined data columns into datetime object.
@@ -78,10 +87,10 @@ class DataCleaning:
 
         # Removing everything from the phone number columns that is not a digit.
         phone_pattern = '[A-Za-z\s\W]'
-        df['phone_number'] = df['phone_number'].apply(lambda x: re.sub(phone_pattern, '', x))
+        df.loc[:,'phone_number'] = df['phone_number'].apply(lambda x: re.sub(phone_pattern, '', x))
         
         # Cleaning email address
-        df['email_address'] = df['email_address'].str.replace('@@', '@')
+        df.loc[:,'email_address'] = df['email_address'].str.replace('@@', '@')
 
         print('Data legacy_users dataframe has been sucessfully cleaned.')
 
@@ -89,8 +98,15 @@ class DataCleaning:
     
     def clean_card_data(self, dataframe):
         '''
-        The function cleans the user card dataframe. Removes NULL values, special characters,
-        removes unnecessary rows and imputes values where it's possible.
+        The function takes a dataframe as an argument and performs the cleaning of the users card data dataframe.
+        Removes NULL values, special characters if any present, removes unnecessary columns and rows.
+        Imputes the data present in the wrong column into the final destination.
+
+        Args:
+            dataframe: the dataframe to clean
+        
+        Returns:
+            The cleaned dataframe.
         '''
 
         df = dataframe
@@ -120,7 +136,7 @@ class DataCleaning:
 
         # Converting the columns into their final types.
         df['date_payment_confirmed'] = pd.to_datetime(df['date_payment_confirmed'], format = 'mixed')
-                #df['expiry_date'] = pd.to_datetime(df['expiry_date'], format = '%m/%y')    <----UNECESSARY
+                #df['expiry_date'] = pd.to_datetime(df['expiry_date'], format = '%m/%y')    <----UNNECESSARY
         df['card_number'] = df['card_number'].astype('int64')
 
         print('Data user_card_data dataframe has been sucessfully cleaned.')
@@ -129,8 +145,15 @@ class DataCleaning:
     
     def clean_data_store(self, dataframe):
         '''
-        The function cleans the stores dataframe. Removes NULL values, special characters,
-        removes unnecessary rows and imputes values where necessary.
+        The function takes a dataframe as an argument and performs the cleaning of the stores data dataframe.
+        Removes NULL values, special characters if any present and removes unnecessary columns and rows.
+        Correcting the continent columns for incorrectly entered values.
+
+        Args:
+            dataframe: the dataframe to clean
+        
+        Returns:
+            The cleaned dataframe.
         '''
         
         df = dataframe
@@ -165,12 +188,12 @@ class DataCleaning:
 
         # Converting the columns into the correct type.
         df['opening_date'] = pd.to_datetime(df['opening_date'], format = 'mixed')
-                #df['longitude'] = df['longitude'].astype('float32')        <----UNECESSARY
-                #df['latitude'] = df['latitude'].astype('float32')          <----UNECESSARY
+                #df['longitude'] = df['longitude'].astype('float32')        <----UNNECESSARY - conversion happens in SQL
+                #df['latitude'] = df['latitude'].astype('float32')          <----UNNECESSARY - conversion happens in SQL
         df['staff_numbers'] = df['staff_numbers'].astype('int16')       
-                #df['country_code'] = df['country_code'].astype('category') <----UNECESSARY
-                #df['continent'] = df['continent'].astype('category')       <----UNECESSARY
-                #df['store_type'] = df['store_type'].astype('category')     <----UNECESSARY
+                #df['country_code'] = df['country_code'].astype('category') <----UNNECESSARY
+                #df['continent'] = df['continent'].astype('category')       <----UNNECESSARY
+                #df['store_type'] = df['store_type'].astype('category')     <----UNNECESSARY
 
         print('Store dataframe has been sucessfully cleaned.')
 
@@ -178,10 +201,14 @@ class DataCleaning:
 
     def convert_product_weights(self, dataframe):
         '''
-        The function converts the weight of products into a unified weight.
+        The function takes a dataframe as an argument and performs the conversion of the weight column.
+        It converts all the different units into kg unit.
 
-        Return:
-            Returns the product dataframe.
+        Args:
+            dataframe: the dataframe to clean
+        
+        Returns:
+            The cleaned dataframe.
         '''
 
         df = dataframe
@@ -192,48 +219,48 @@ class DataCleaning:
         df = df[~df.index.isin(mask2.index)]
 
         # Based on the 1:1 conversion rate ml simply replaced with gramm for further conversion.
-        df['weight'] = df['weight'].str.replace('ml', 'g') 
+        df.loc[:,'weight'] = df['weight'].str.replace('ml', 'g') 
 
         # Separating the weights that not in kg into a subset of the dataframe and removing g.
         not_kg = df[~df['weight'].str.contains('kg')]
-        not_kg['weight'] = not_kg['weight'].str.replace('g','')
+        not_kg.loc[:,'weight'] = not_kg['weight'].str.replace('g','')
 
         # Multipack conversion to single gramm within the subset, after conversion splicing them back into the subset.
         mg = not_kg[not_kg['weight'].str.contains('x')]
-        mg['weight']= mg['weight'].apply(lambda x : int(x.split(' ')[0]) * int(x.split(' ')[2]))
+        mg.loc[:,'weight']= mg['weight'].apply(lambda x : int(x.split(' ')[0]) * int(x.split(' ')[2]))
         not_kg.loc[not_kg['weight'].index.isin(mg.index), 'weight'] = mg['weight']
         
         # There is a product with oz unit, converting it based on the conversion rate 1oz = 28.35g.
         oz = df[df['weight'].str.contains('oz')]
-        oz['weight'] = oz['weight'].str.replace('oz', '')
-        oz['weight'] = oz['weight'].apply(lambda x: int(x) * 28.35)
+        oz.loc[:,'weight'] = oz['weight'].str.replace('oz', '')
+        oz.loc[:,'weight'] = oz['weight'].apply(lambda x: int(x) * 28.35)
         not_kg.loc[not_kg['weight'].index.isin(oz.index), 'weight'] = oz['weight']
 
         # Separating Goodmans products as the weight is not correct. Fixing the splicing them back into the subset.
         goodmans = not_kg[not_kg['product_name'].str.contains('Goodmans')]
-        goodmans['weight'] = goodmans['weight'].str.lstrip('0.')
-        goodmans['weight'] = goodmans['weight'].apply(lambda x: str(x).replace('.','') if len(x) > 4 else x)
-        goodmans['weight'] = goodmans['weight'].apply(lambda x: str(x).replace('.5','500'))
+        goodmans.loc[:,'weight'] = goodmans['weight'].str.lstrip('0.')
+        goodmans.loc[:,'weight'] = goodmans['weight'].apply(lambda x: str(x).replace('.','') if len(x) > 4 else x)
+        goodmans.loc[:,'weight'] = goodmans['weight'].apply(lambda x: str(x).replace('.5','500'))
         not_kg.loc[not_kg['weight'].index.isin(goodmans.index), 'weight'] = goodmans['weight']
 
         # Correcting the only value with a weight enging (<whitespace>.)
-        not_kg['weight'] = not_kg['weight'].apply(lambda x: str(x).replace(' .', ''))
+        not_kg.loc[:,'weight'] = not_kg['weight'].apply(lambda x: str(x).replace(' .', ''))
 
         # Separating the Disney and Rug products and fixing the weight where it needs to be then splicing them back into the subset.
         disney_rug = not_kg.loc[not_kg['product_name'].str.contains(r'^(?=.*Disney)|(?=.*Rug)')]
-        disney_rug['weight'] = disney_rug['weight'].apply(lambda x: str(x).replace('.', ''))
-        disney_rug['weight'] = disney_rug['weight'].apply(lambda x: int(x) * 100 if int(x) < 100 else x)
+        disney_rug.loc[:,'weight'] = disney_rug['weight'].apply(lambda x: str(x).replace('.', ''))
+        disney_rug.loc[:,'weight'] = disney_rug['weight'].apply(lambda x: int(x) * 100 if int(x) < 100 else x)
         not_kg.loc[not_kg['weight'].index.isin(disney_rug.index), 'weight'] = disney_rug['weight']
 
         # Converting the subset from gramm to kg by diving 1000.
-        not_kg['weight'] = not_kg['weight'].apply(lambda x: float(x) / 1000)
+        not_kg.loc[:,'weight'] = not_kg['weight'].apply(lambda x: float(x) / 1000)
 
         # Removing the kg from the main dataset and splicing the subset back into main to finish the whole conversion.
-        df['weight'] = df['weight'].str.replace('kg', '')
+        df.loc[:,'weight'] = df['weight'].str.replace('kg', '')
         df.loc[df['weight'].index.isin(not_kg.index), 'weight'] = not_kg['weight']
 
         # Converting column into float type.
-        df['weight'] = df['weight'].astype('float')
+        df.loc[:,'weight'] = df['weight'].astype('float')
 
         print('Product weigths have been sucessfully converted.')
 
@@ -241,33 +268,50 @@ class DataCleaning:
 
     def clean_products_data(self, dataframe):
         '''
-        The function cleans the products dataframe. Removes NULL values, special characters,
-        removes unnecessary rows and imputes values where necessary.
+        The function takes a dataframe as an argument and performs the remaining cleaning of the products data dataframe.
+        Removes unnecessary columns, converting all lowercase characters into uppercase characters the product code and 
+        some of the rows into the final data type.
+
+        Args:
+            dataframe: the dataframe to clean
+        
+        Returns:
+            The cleaned dataframe.
         '''
 
         df = dataframe
 
-        # Removes unecessary column
+        # Removes unnecessary column
         df = df.drop(labels = ['Unnamed: 0'], axis = 1)
 
         # Removing the pound sign from the product price column and renaming the column to reflect that all units are in pound(£).
         # Also renaming the weight ccolumn to reflect that all units are in kg.
-                #df['product_price'] = df['product_price'].str.replace('£','')
-                #df.rename(columns = {'product_price':'product_price_(£)', 'weight':'weight(kg)'})
+                #df['product_price'] = df['product_price'].str.replace('£','')                     <-----UNNECESSARY - conversion happens in SQL
+                #df.rename(columns = {'product_price':'product_price_(£)', 'weight':'weight(kg)'}) <-----UNNECESSARY
 
         # Converting all the letters in the product code column to uppercase.
         df['product_code'] = df['product_code'].apply(lambda x: x.upper())
 
-                #df['product_price'] = df['product_price'].astype('float')  <----UNECESSARY
-                #df['category'] = df['category'].astype('category')         <----UNECESSARY
+                #df['product_price'] = df['product_price'].astype('float')  <----UNNECESSARY - conversion happens in SQL
+                #df['category'] = df['category'].astype('category')         <----UNNECESSARY 
         df['date_added'] = pd.to_datetime(df['date_added'], format = 'mixed')
-                #df['removed'] = df['removed'].astype('category')           <----UNECESSARY
+                #df['removed'] = df['removed'].astype('category')           <----UNNECESSARY
 
         print('Products dataframe has been sucessfully cleaned.')
         
         return df
     
     def clean_orders_data(self, dataframe):
+        '''
+        The function takes a dataframe as an argument and performs the cleaning of the orders table dataframe.
+        Removes unnecessary columns and converting all lowercase characters into uppercase characters the product code.
+
+        Args:
+            dataframe: the dataframe to clean
+        
+        Returns:
+            The cleaned dataframe.
+        '''
 
         df = dataframe
 
@@ -282,6 +326,16 @@ class DataCleaning:
         return df
     
     def clean_sales_date(self, dataframe):
+        '''
+        The function takes a dataframe as an argument and performs the cleaning of the sales data dataframe.
+        Removes NULL values,unnecessary rows.
+        Converts some of the rows into the final data type.
+        Args:
+            dataframe: the dataframe to clean
+        
+        Returns:
+            The cleaned dataframe.
+        '''
 
         df = dataframe
 
@@ -290,13 +344,13 @@ class DataCleaning:
         df = df[~df.index.isin(mask.index)]
 
         # Removing gibberish data based on the time_period.
-        months = ['Evening', 'Midday', 'Morning', 'Late_Hours']
-        mask2 = df[~df['time_period'].isin(months)]
+        times_of_day = ['Evening', 'Midday', 'Morning', 'Late_Hours']
+        mask2 = df[~df['time_period'].isin(times_of_day)]
         df = df[~df.index.isin(mask2.index)]
 
         # Converting columns into the final data type.
         df['timestamp'] = pd.to_datetime(df['timestamp'], format = '%H:%M:%S')
-                #df['time_period'] = df['time_period'].astype('category')   <----UNECESSARY
+                #df['time_period'] = df['time_period'].astype('category')   <----UNNECESSARY
         df['month'] = df['month'].astype('int16')
         df['year'] = df['year'].astype('int32')
         df['day'] = df['day'].astype('int16')

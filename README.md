@@ -39,24 +39,41 @@ The created tables will be altered later to for the correct data type.
 
 ## Milestone 3
 
-Setting up the star-based databse schema by altering the table columns data type. Cleaning the data where necessar and adding new columns based on existing data.
+Setting up the star-based databse schema, altering the table columns data type, cleaning the data where necessary and adding new columns based on existing data.
 This section also contains the addition of Primary and Foreign Keys to tables.
 
 
 ## Milestone 4
 
----WIP----
+Utilizing SQL queries to extract information from the data and answer business questions. By performing SQL queries on the data we answer the following questions:
+
+- How many stores the business have and in which countries?
+- Which locations currently have the most stores?
+- Which months produced the largest amount of sales?
+- How many sales are coming from online?
+- What percentage of sales come through each type of store?
+- Which month in each year produced the highest cost of sales?
+- What is out staff headcount?
+- Which German store type is selling the most?
+- How quickly is the company making sales?
 
 # Installation 
+
+Follow the steps to start the pipeline process:
+
+1. Clone the github repository by typig in the Command Line Interface git clone [git_repository_url] on either operating system.
+2. Navigate to the folder where the repository was cloned and in the source folder open a terminal/shell or alternatively navigate to the folder using the shell.
+3. Type the command python3 start_data_pipeline.py.
 
 
 
 # How to use
 
+It will automatically download, clean and upload data to the database and executes the queries that is saved locally that is ready for analysis.
 
 # File structure
 
-The files for the project can be found in the ... folder.
+The files for the project can be found in the multinational-retail-data-centralisation247 folder.
 
 ```
 .
@@ -64,21 +81,43 @@ The files for the project can be found in the ... folder.
 │   ├── credentials.yaml
 │   └── dummy_credentials.yaml
 ├── database
-│   ├── alter_all_tables_foreign_key.sql
-│   ├── alter_all_tables_primary_keys.sql
-│   ├── alter_dim_card_details.sql
-│   ├── alter_dim_date_times.sql
-│   ├── alter_dim_products.sql
-│   ├── alter_dim_store_details.sql
-│   ├── alter_dim_users_table.sql
-│   ├── alter_orders_table.sql
-│   ├── create_db.sql
-│   ├── create_dim_card_details.sql
-│   ├── create_dim_date_times.sql
-│   ├── create_dim_products.sql
-│   ├── create_dim_store_details.sql
-│   ├── create_dim_users.sql
-│   └── create_orders_table.sql
+│   ├── alter_tables
+│   │   ├── alter_dim_card_details.sql
+│   │   ├── alter_dim_date_times.sql
+│   │   ├── alter_dim_products.sql
+│   │   ├── alter_dim_store_details.sql
+│   │   ├── alter_dim_users.sql
+│   │   ├── alter_orders_table.sql
+│   │   ├── alter_tables_foreign_key.sql
+│   │   └── alter_tables_primary_key.sql
+│   ├── create_tables
+│   │   ├── create_db.sql
+│   │   ├── create_dim_card_details.sql
+│   │   ├── create_dim_date_times.sql
+│   │   ├── create_dim_products.sql
+│   │   ├── create_dim_store_details.sql
+│   │   ├── create_dim_users.sql
+│   │   └── create_orders_table.sql
+│   ├── query_results
+│   │   ├── select_query_1.csv
+│   │   ├── select_query_2.csv
+│   │   ├── select_query_3.csv
+│   │   ├── select_query_4.csv
+│   │   ├── select_query_5.csv
+│   │   ├── select_query_6.csv
+│   │   ├── select_query_7.csv
+│   │   ├── select_query_8.csv
+│   │   └── select_query_9.csv
+│   └── select_query
+│       ├── select_query_1.sql
+│       ├── select_query_2.sql
+│       ├── select_query_3.sql
+│       ├── select_query_4.sql
+│       ├── select_query_5.sql
+│       ├── select_query_6.sql
+│       ├── select_query_7.sql
+│       ├── select_query_8.sql
+│       └── select_query_9.sql
 ├── data_files
 │   ├── legacy_users.csv
 │   ├── orders_table.csv
@@ -93,11 +132,14 @@ The files for the project can be found in the ... folder.
     ├── database_utils.py
     ├── data_cleaning.py
     ├── data_extraction.py
+    ├── decorator_class.py
     ├── __pycache__
     │   ├── cred_reader.cpython-311.pyc
     │   ├── database_utils.cpython-311.pyc
     │   ├── data_cleaning.cpython-311.pyc
-    │   └── data_extraction.cpython-311.pyc
+    │   ├── data_extraction.cpython-311.pyc
+    │   ├── decorator_class.cpython-311.pyc
+    │   └── extractors.cpython-311.pyc
     └── start_data_pipeline.py
 ```
 

@@ -11,7 +11,7 @@ import boto3
 import faulthandler
 faulthandler.enable()
 
-# Class definition of the Data Extractor class for extraction of data from multiple sources.
+# Class definition of the Data Extractor.
 class DataExtractor:
     '''
     The class is used to extract data from various sources for the project, including csv files, API and AWS S3 bucket.
@@ -23,25 +23,44 @@ class DataExtractor:
         
 
     Methods:
-        __init__():
-        read_rds_table():
-        retrieve_pdf_data():
-        list_number_of_stores():
-        retrieve_stores_data():
-        extract_from_s3():
-        extract_json_data():
-        extract_first_source():
-        extract_second_source():
-        extract_third_source():
-        extract_forth_source():
-        extract_fifth_source():
-        extract_sixth_source():
+        __init__(): class constructor
+        read_rds_table(): retrieves data from remote database
+        retrieve_pdf_data(): extracts data from pdf source file
+        list_number_of_stores(): lists the number of sources
+        retrieve_stores_data(): downloads data via API request
+        extract_from_s3(): extracts data from S3 bucket via boto
+        extract_json_data(): extracts data via an API request
+        extract_first_source(): first source extraction, cleaning and uploading process
+        extract_second_source(): second source extraction, cleaning and uploading process
+        extract_third_source(): third source extraction, cleaning and uploading process
+        extract_forth_source(): forth source extraction, cleaning and uploading process
+        extract_fifth_source(): fifth source extraction, cleaning and uploading process
+        extract_sixth_source(): sixth source extraction, cleaning and uploading process
     '''
 
     # Class constructor
     def __init__(self) -> None:
         '''
         The constructor initializes the attributes that necessary for the class instances.
+
+        Args:
+            path: real path to the source file where it was called
+            dir: the directory of the file
+            file_dir: full path pointing to the directory of the data_files in any operating system
+            remote_rds_db: class instance of DatabaseConnector
+            tables: tables present in the remote AWS source
+            credentials: class instance of CredentialReader
+            cleaning: class instance of Datacleaning
+            local_rds_db: class instance if DatabaseConnector
+            pdf_data: link to source
+            num_of_stores: link to source
+            store_endpoint: link to source
+            s3_address: link to source
+            json_address: link to source
+            creds: API credentials
+
+        Returns:
+            None
         '''
         self.path =  os.path.realpath(__file__)
         self.dir = os.path.dirname(self.path)
@@ -66,6 +85,10 @@ class DataExtractor:
         '''
         This function is to read database tables from the AWS RDS database.
 
+        Args:
+            remote_rds_db: DatabaseConnector class that po
+            table_name: the table to extract
+
         Returns:
             Returns a pandas dataframe.
         '''
@@ -86,6 +109,9 @@ class DataExtractor:
         '''
         This function is to retrieve a pdf document from AWS S3.
 
+        Args:
+            link: link to source
+
         Returns:
             Returns a pandas dataframe.
         '''
@@ -105,6 +131,10 @@ class DataExtractor:
     def list_number_of_stores(self, endpoint, api_header):
         '''
         This function is to retrieve the number of stores from an API request.
+
+        Args:
+            endpoint: link to the source
+            api_header: API credentials
 
         Returns:
             Returns a string.
@@ -128,23 +158,29 @@ class DataExtractor:
         '''
         This function is to retrieve the data from an API request and creates a pandas dataframe.
 
+        Args:
+            store_endpoint: link to source
+            no_stores: number of files (stores) at the endpoint
+            crds: API credentials
+
         Returns:
             Returns a pandas dataframe.
         '''
+
         try:
             df_stores = []
 
             for store in range(0,no_stores):
                 store_endp = ''.join([store_endpoint, str(store)])
                 s = requests.Session()
-                with s.get(store_endp, headers= crds) as response2:
-                    if response2.status_code == 200:
-                        data = response2.json()
+                with s.get(store_endp, headers= crds) as response:
+                    if response.status_code == 200:
+                        data = response.json()
                         df_stores.append(data)
                         print(f'Store number {store} has been downloaded!', end='\r')
                     else:
-                        print(f"Request failed with status code: {response2.status_code}")
-                        print(f"Response Text: {response2.text}")
+                        print(f"Request failed with status code: {response.status_code}")
+                        print(f"Response Text: {response.text}")
 
             df = pd.DataFrame(df_stores)
             df.to_csv(os.path.join(self.file_dir,'stores.csv'), sep=',', header = True)
@@ -159,6 +195,9 @@ class DataExtractor:
     def extract_from_s3(self, address):
         '''
         This function is to retrieve the data from AWS S3 bucket.
+
+        Args:
+            address: link to source
 
         Returns:
             Returns a pandas dataframe.
@@ -182,6 +221,9 @@ class DataExtractor:
         '''
         This function is to retrieve the data from AWS via an API request.
 
+        Args:
+            address: link to source
+
         Returns:
             Returns a pandas dataframe.
         '''
@@ -199,8 +241,14 @@ class DataExtractor:
             print(e)
 
 
+
     @DecoratorClass
     def extract_first_source(self):
+        print('The availables tables are:')
+        for table in self.tables:
+            print(f'-------> {table}')
+        print(f'Table {self.tables[1]} is being extracted.\n')
+
         user_df = self.read_rds_table(self.remote_rds_db.engine, self.tables[1])
         clean_user_df = self.cleaning.clean_user_data(user_df)
         self.local_rds_db.upload_to_db(clean_user_df, 'dim_users')

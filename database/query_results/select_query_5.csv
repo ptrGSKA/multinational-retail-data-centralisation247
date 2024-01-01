@@ -1,6 +1,6 @@
-,store_type,total_sales,number_of_sales
-0,Local,3440896.5199998124,53894
-1,Web Portal,1726547.0499999544,26957
-2,Super Store,1224293.649999981,18779
-3,Mall Kiosk,698791.6099999975,10762
-4,Outlet,631804.8099999991,9731
+,store_type,total_sales,percentage_total(%)
+0,Local,3440896.52,44.56
+1,Web Portal,1726547.05,22.36
+2,Super Store,1224293.65,15.85
+3,Mall Kiosk,698791.61,9.05
+4,Outlet,631804.81,8.18

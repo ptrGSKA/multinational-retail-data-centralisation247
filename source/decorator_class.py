@@ -2,21 +2,18 @@ import time
 from typing import Any
 
 
-# Class definition of the DecoratorClass that modifies the function when it's being called.
+# Class definition of the DecoratorClass.
 class DecoratorClass(object):
     '''
     The class is a decorator class that performs the alteration of a function.
-
-    Parameters:
-
     
     Args:
-        
+        object: 
 
     Methods:
-        __init__():
-        __get__():
-        __call__():
+        __init__(): class constructor
+        __get__(): checks the instance and owener of the call
+        __call__(): the function is execited when the class is called
         
     '''
 
@@ -24,6 +21,9 @@ class DecoratorClass(object):
     def __init__(self, function) -> None:
         '''
         The function is the class constructor.
+
+        Args:
+            function: The function the decorator operates, it is automatically passed as the first argument to the init constructor
 
         Returns:
             None.
@@ -33,23 +33,30 @@ class DecoratorClass(object):
 
     def __get__(self, instance, owner):
         '''
-        The function is checks the instance owner when the DecoratorClass is called..
+        The function is to check the instance's owner when the DecoratorClass is called.
+
+        Args:
+            instance: the instance ...
+            owner: the owner ...
 
         Returns:
-            
+            type of self and the instance and owner of the class call.
         '''
         return type(self)(self.function.__get__(instance, owner))
 
 
     def __call__(self, *args, **kwargs) -> Any:
         '''
-        This function is being called to decorate the function when the DecoratorClass is called.
+        If there are decorator arguments, __call__() is only called once as part of the decoration process.
+        It performs the function decoration
 
         Returns:
-            None.
+            The decorated function.
         '''
 
-        print(f'----##- START OF --- DATA EXTRACTION -##----\n')
+        ordinal_num = self.function.__name__.split('_')[1]
+
+        print(f'----##- START OF {ordinal_num.upper()} DATA EXTRACTION -##----\n')
         t1 = time.time()
 
         self.function()
@@ -57,5 +64,5 @@ class DecoratorClass(object):
         t2 = time.time()
         print('\n')
         print(f'Time taken to extract, clean and upload to local database is: {round(t2-t1,2)}s')
-        print(f'----##- END OF --- DATA EXTRACTION -##----\n')
+        print(f'----##- END OF {ordinal_num.upper()} DATA EXTRACTION -##----\n')
         
