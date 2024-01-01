@@ -27,6 +27,8 @@ The code first inspects the local database, searching the existence of the datab
 
 The extraction of further data continues with extracting information from a pdf file, downloading data via an API request, AWS S3 bucket, AWS dtabase again and finally it performs an other API request to download clean and to upload the data into the local database.
 
+The script then reads the content of the database folder where raw queries are stored for the project and executes them on the database, altering the data types and adding primary and foreign keys. When this is done, the execution of the queries performed to answer business questions that stored in a csv file and also printed to the terminal.
+
 ## Milestone 1
 
 The first milestone is the setup of the github repository.
