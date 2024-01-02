@@ -72,6 +72,8 @@ Follow the steps to start the pipeline process:
 # How to use
 
 It will automatically download, clean and upload data to the database and executes the queries that is saved locally that is ready for analysis.
+The data upload to the local database is set to append rather then replace if the data already in exists in the database hence it will no overwrite if there are 
+constraint present. To overcome of this issues hasn't been implemented.
 
 # File structure
 
