@@ -40,5 +40,5 @@ if __name__ == '__main__':
     de.local_rds_db.alter_tables_data_types()
     de.local_rds_db.alter_tables_keys()
     
-    # Performing data analysis with SQL.
+    # Performing data analysis with SQL. query 9  should contain -  SET intervalstyle = 'postgres_verbose';
     de.local_rds_db.select_query()

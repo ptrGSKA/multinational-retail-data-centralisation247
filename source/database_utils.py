@@ -345,7 +345,7 @@ class DatabaseConnector:
             full_file_name = f'alter_{table}.sql'
             query = self.__get_sql_files(full_file_name)
             self.__execute_db_query(query)
-            print('Tables have been altered according to the sql file.')
+            print(f'Tables have been altered according to the {table} sql file.')
 
     
     def select_query(self):
