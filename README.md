@@ -63,9 +63,10 @@ Utilizing SQL queries to extract information from the data and answer business q
 
 Follow the steps to start the pipeline process:
 
-1. Clone the github repository by typig in the Command Line Interface git clone [git_repository_url] on either operating system.
+1. Clone the github repository by typig in the Command Line Interface git clone ```[git_repository_url]``` on either operating system.
 2. Navigate to the folder where the repository was cloned and in the source folder open a terminal/shell or alternatively navigate to the folder using the shell.
-3. Type the command python3 start_data_pipeline.py.
+3. Set up the environment by typing in the CLI or shell ```conda env create -f environment.yml```
+4. Type the command ```python3 start_data_pipeline.py```.
 
 
 
