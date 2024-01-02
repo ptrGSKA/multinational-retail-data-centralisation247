@@ -130,6 +130,7 @@ The files for the project can be found in the multinational-retail-data-centrali
 │   ├── sale_date.csv
 │   ├── stores.csv
 │   └── user_card_data.csv
+├── environment.yml
 ├── Licence.txt
 ├── README.md
 └── source
