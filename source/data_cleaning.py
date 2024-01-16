@@ -4,7 +4,6 @@ import numpy as np
 import re
 
 
-# Class definition of the DataCleaning class.
 class DataCleaning:
     '''
     The class is used to clean the data extracted from various sources. Each method cleans 
@@ -22,7 +21,6 @@ class DataCleaning:
 
     '''
 
-    # Class constructor
     def __init__(self) -> None:
         '''
         The constructor initializes the attributes that necessary for the class instances.
@@ -122,7 +120,7 @@ class DataCleaning:
         # Removing the question mark from the card_nuber column.
         df['card_number'] = df['card_number'].str.replace('?','')
 
-        # FInds entries with alphabetical characters in the card number column and replaces them with a dash (marks them) and then any entry that contains dashes is being removed as those are not valid cards.
+        # Finds entries with alphabetical characters in the card number column and replaces them with a dash (marks them) and then any entry that contains dashes is being removed as those are not valid cards.
         pattern = "[A-Za-z]"
         df['card_number'] = df['card_number'].apply(lambda x: re.sub(pattern, '-', x))
 
@@ -188,12 +186,7 @@ class DataCleaning:
 
         # Converting the columns into the correct type.
         df['opening_date'] = pd.to_datetime(df['opening_date'], format = 'mixed')
-                #df['longitude'] = df['longitude'].astype('float32')        <----UNNECESSARY - conversion happens in SQL
-                #df['latitude'] = df['latitude'].astype('float32')          <----UNNECESSARY - conversion happens in SQL
         df['staff_numbers'] = df['staff_numbers'].astype('int16')       
-                #df['country_code'] = df['country_code'].astype('category') <----UNNECESSARY
-                #df['continent'] = df['continent'].astype('category')       <----UNNECESSARY
-                #df['store_type'] = df['store_type'].astype('category')     <----UNNECESSARY
 
         print('Store dataframe has been sucessfully cleaned.')
 
@@ -284,18 +277,9 @@ class DataCleaning:
         # Removes unnecessary column
         df = df.drop(labels = ['Unnamed: 0'], axis = 1)
 
-        # Removing the pound sign from the product price column and renaming the column to reflect that all units are in pound(£).
-        # Also renaming the weight ccolumn to reflect that all units are in kg.
-                #df['product_price'] = df['product_price'].str.replace('£','')                     <-----UNNECESSARY - conversion happens in SQL
-                #df.rename(columns = {'product_price':'product_price_(£)', 'weight':'weight(kg)'}) <-----UNNECESSARY
-
         # Converting all the letters in the product code column to uppercase.
         df['product_code'] = df['product_code'].apply(lambda x: x.upper())
-
-                #df['product_price'] = df['product_price'].astype('float')  <----UNNECESSARY - conversion happens in SQL
-                #df['category'] = df['category'].astype('category')         <----UNNECESSARY 
         df['date_added'] = pd.to_datetime(df['date_added'], format = 'mixed')
-                #df['removed'] = df['removed'].astype('category')           <----UNNECESSARY
 
         print('Products dataframe has been sucessfully cleaned.')
         
@@ -350,7 +334,6 @@ class DataCleaning:
 
         # Converting columns into the final data type.
         df['timestamp'] = pd.to_datetime(df['timestamp'], format = '%H:%M:%S')
-                #df['time_period'] = df['time_period'].astype('category')   <----UNNECESSARY
         df['month'] = df['month'].astype('int16')
         df['year'] = df['year'].astype('int32')
         df['day'] = df['day'].astype('int16')

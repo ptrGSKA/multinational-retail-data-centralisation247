@@ -1,7 +1,6 @@
 from database_utils import DatabaseConnector
 from data_cleaning import DataCleaning
 from cred_reader import CredentialReader
-from decorator_class import DecoratorClass
 import pandas as pd
 import os
 import tabula
@@ -11,16 +10,10 @@ import boto3
 import faulthandler
 faulthandler.enable()
 
-# Class definition of the Data Extractor.
+
 class DataExtractor:
     '''
     The class is used to extract data from various sources for the project, including csv files, API and AWS S3 bucket.
-
-    Parameters:
-
-    
-    Args:
-        
 
     Methods:
         __init__(): class constructor
@@ -116,7 +109,6 @@ class DataExtractor:
             Returns a pandas dataframe.
         '''
         try:
-            #df_card = tabula.read_pdf(link, pages = 'all')
             tabula.convert_into(link, os.path.join(self.file_dir, 'user_card_data.csv'), output_format='csv', pages = 'all', stream=True)
             df_card  = pd.read_csv(os.path.join(self.file_dir,'user_card_data.csv'))
 
@@ -239,49 +231,3 @@ class DataExtractor:
 
         except Exception as e:
             print(e)
-
-
-
-    @DecoratorClass
-    def extract_first_source(self):
-        print('The availables tables are:')
-        for table in self.tables:
-            print(f'-------> {table}')
-        print(f'Table {self.tables[1]} is being extracted.\n')
-
-        user_df = self.read_rds_table(self.remote_rds_db.engine, self.tables[1])
-        clean_user_df = self.cleaning.clean_user_data(user_df)
-        self.local_rds_db.upload_to_db(clean_user_df, 'dim_users')
-
-    @DecoratorClass
-    def extract_second_source(self):
-        card_df = self.retrieve_pdf_data(self.pdf_data)
-        clean_card_df = self.cleaning.clean_card_data(card_df)
-        self.local_rds_db.upload_to_db(clean_card_df, 'dim_card_details')
-
-    @DecoratorClass
-    def extract_third_source(self):
-        stores = self.list_number_of_stores(self.num_of_stores, self.creds)
-        store_df = self.retrieve_stores_data(self.store_endpoint, stores, self.creds)
-        clean_store_df = self.cleaning.clean_data_store(store_df)
-        self.local_rds_db.upload_to_db(clean_store_df, 'dim_store_details')
-
-    @DecoratorClass
-    def extract_forth_source(self):
-        products_df = self.extract_from_s3(self.s3_address)
-        products_conversion = self.cleaning.convert_product_weights(products_df)
-        clean_products_df = self.cleaning.clean_products_data(products_conversion)
-        self.local_rds_db.upload_to_db(clean_products_df, 'dim_products')
-
-    @DecoratorClass
-    def extract_fifth_source(self):
-        print(f'Table {self.tables[2]} is being extracted.')
-        orders_df = self.read_rds_table(self.remote_rds_db.engine, self.tables[2])
-        clean_orders_df = self.cleaning.clean_orders_data(orders_df)
-        self.local_rds_db.upload_to_db(clean_orders_df, 'orders_table')
-
-    @DecoratorClass
-    def extract_sixth_source(self):
-        sales_date_df = self.extract_json_data(self.json_address)
-        clean_sales_date_df = self.cleaning.clean_sales_date(sales_date_df)
-        self.local_rds_db.upload_to_db(clean_sales_date_df, 'dim_date_times')

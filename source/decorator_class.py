@@ -2,13 +2,12 @@ import time
 from typing import Any
 
 
-# Class definition of the DecoratorClass.
 class DecoratorClass(object):
     '''
     The class is a decorator class that performs the alteration of a function.
     
     Args:
-        object: 
+        object: the object, the decorator called on
 
     Methods:
         __init__(): class constructor

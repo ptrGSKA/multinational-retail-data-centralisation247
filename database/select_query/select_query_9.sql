@@ -1,13 +1,3 @@
- SELECT year,
-		month,
-		day,
-		timestamp,
-		LEAD((year, month, day, timestamp),1) OVER( ORDER BY year) AS actual_time_taken
-FROM dim_date_times AS ddt
-JOIN orders_table AS ot
-	ON ddt.date_uuid = ot.date_uuid
-ORDER BY year, month, day,timestamp;
-
 WITH cte AS (
 		SELECT
 			year,

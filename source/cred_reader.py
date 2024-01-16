@@ -2,7 +2,6 @@ import os
 import yaml
 
 
-# Class definition of the Data Extractor.
 class CredentialReader:
     '''
     The class is used to extract credentials safely from a multidocument yaml file.

@@ -5,7 +5,6 @@ import os
 import pandas as pd
 
 
-# Class definition of the DatabaseConnector.
 class DatabaseConnector:
     '''
     The class is used to communicate with the database to query and upload data to and from it.
@@ -28,7 +27,6 @@ class DatabaseConnector:
         select_query(): Function that retrieves and executes the selection queries
     '''
 
-    # Class constructor
     def __init__(self) -> None:
         '''
         The constructor initializes the attributes that necessary for the class instances.
@@ -54,7 +52,6 @@ class DatabaseConnector:
 
         self.credentials = CredentialReader()
 
-
     def __read_db_creds(self, location):
         '''
         This function is to read database credentials from a yaml file.
@@ -69,7 +66,6 @@ class DatabaseConnector:
         db_creds = self.credentials.credential_extraction('Database', location)
 
         return db_creds
-
 
     def __init_db_engine(self, location):
         '''
@@ -102,7 +98,6 @@ class DatabaseConnector:
 
         return self.engine
 
-
     def list_db_tables(self, location):
         '''
         This function returns the available tables in the AWS RDS database.
@@ -117,13 +112,12 @@ class DatabaseConnector:
         # Initializing a database engine to the required database and inspects the existing tables.
         self.__init_db_engine(location)
         
-        with self.engine.execution_options(isolation_level='AUTOCOMMIT').connect() as conn:
+        with self.engine.execution_options(isolation_level='AUTOCOMMIT').connect():
              self.inspector = inspect(self.engine)
              self.db_tables = self.inspector.get_table_names()
 
         return self.db_tables
     
-
     def upload_to_db(self, dataframe_to_upload, table_name_to_upload):
         '''
         This function uploads a pandas dataframe to a local postgresql database.
@@ -147,7 +141,6 @@ class DatabaseConnector:
         except Exception as e:
             print(e)
         
-
     def check_db_existence(self):
         '''
         This function checks the existence of the LOCAL database.
@@ -168,7 +161,6 @@ class DatabaseConnector:
 
         return database_exists(self.engine.url)
 
-
     def check_db_tables(self):
         '''
         This function checks the existence of the required tables in the LOCAL database.
@@ -176,18 +168,12 @@ class DatabaseConnector:
         Returns:
             List with the difference of the required and currently existing tables.
         '''
-        
-        # List of the tables in the local database
-                    #tables = self.list_db_tables('LOCAL')
 
         # List of tables required to the project
         db_tables = self.credentials.credential_extraction('Database', 'TABLES')
         
         self.required_tables = list(db_tables.values())
         existing_tables = self.list_db_tables('LOCAL')
-
-                    #for table_name in tables:
-                    #    existing_tables.append(table_name)
         
         # Intersection and difference of the existing and required tables
         intersection = set(self.required_tables).intersection(existing_tables)
@@ -207,13 +193,12 @@ class DatabaseConnector:
             for index,table in enumerate(difference):
                 print(f'{index+1}. -----> {table}')
         else:
-            print(f'The following tables need to be created first.')
+            print('The following tables need to be created first.')
             for index, table in enumerate(difference):
                 print(f'{index+1}. -----> {table}')
         
         return list(difference)
     
-
     def create_database(self):
         '''
         This function will perform the creation of an empty database.
@@ -244,14 +229,13 @@ class DatabaseConnector:
         '''
 
         # Takes the list to read the table names that needs to be created, gets the file and executes the query.
-        print(f'The following table has been created.')
+        print('The following table has been created.')
         for index,table in enumerate(missing_tables):
             full_file_name = f'create_{table}.sql'
             query = self.__get_sql_files(full_file_name)
             self.__execute_db_query(query)
             print(f'{index}. -----> {table}')
                 
-
     def __execute_db_query(self, query):
         '''
         This function takes a raw query and executes it using sqlalchemy module.
@@ -269,7 +253,6 @@ class DatabaseConnector:
 
             return result
         
-    
     def __execute_db_query_pandas(self,query):
         '''
         This function takes a raw query and executes it using the pandas module.
@@ -288,8 +271,6 @@ class DatabaseConnector:
 
             return result
 
-
-
     def __get_sql_files(self, file_name):
         '''
         This function takes a file_name and return it's content.
@@ -301,18 +282,18 @@ class DatabaseConnector:
             String - SQL query.
         '''
 
-        dir = ''
+        query_dir = ''
 
         # Based on the file names first split, either create, alter or select updates the dir variable
         if file_name.split('_')[0] == 'create':
-            dir = self.db_dir_create
+            query_dir = self.db_dir_create
         elif file_name.split('_')[0] == 'alter':
-            dir = self.db_dir_alter
+            query_dir = self.db_dir_alter
         elif file_name.split('_')[0] == 'select':
-            dir = self.db_dir_select
+            query_dir = self.db_dir_select
 
         # Based on the dir variables it creates the full path to the file and reads it's content.
-        with open(os.path.join(dir, file_name), mode = 'r') as file:
+        with open(os.path.join(query_dir, file_name), mode = 'r') as file:
             return file.read()
         
     def alter_tables_data_types(self):
@@ -328,7 +309,6 @@ class DatabaseConnector:
             query = self.__get_sql_files(full_file_name)
             self.__execute_db_query(query)
             print(f'Table {table} has been altered.')
-
 
     def alter_tables_keys(self):
         '''
@@ -347,7 +327,6 @@ class DatabaseConnector:
             self.__execute_db_query(query)
             print(f'Tables have been altered according to the {table} sql file.')
 
-    
     def select_query(self):
         '''
         This function reads the files from the select_query directory and performs the execution of each file and the results are saved in the query_result diectory as csv files.
