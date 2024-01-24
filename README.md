@@ -25,6 +25,7 @@ In an effort to become more data-driven, the organisation would like to make its
 The first goal will be to produce a system that stores the current company data in a database so that it's accessed from one centralised location and acts as a single source of truth for sales data.
 
 ## Table of Contents
+
 1. [Description](#description)
     - [Milestone 1](#milestone-1)
     - [Milestone 2](#milestone-2)
