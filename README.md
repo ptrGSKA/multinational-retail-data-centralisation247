@@ -1,5 +1,21 @@
 # Multinational Retail Data Centralization Project
 
+<div align="center">
+	<table>
+		<tr>
+			<td><code><img width="40" src="https://user-images.githubusercontent.com/25181517/192107858-fe19f043-c502-4009-8c47-476fc89718ad.png" alt="REST" title="REST"/></code></td>
+			<td><code><img width="40" src="https://user-images.githubusercontent.com/25181517/192108372-f71d70ac-7ae6-4c0d-8395-51d8870c2ef0.png" alt="Git" title="Git"/></code></td>
+			<td><code><img width="40" src="https://user-images.githubusercontent.com/25181517/192108374-8da61ba1-99ec-41d7-80b8-fb2f7c0a4948.png" alt="GitHub" title="GitHub"/></code></td>
+			<td><code><img width="40" src="https://user-images.githubusercontent.com/25181517/192108891-d86b6220-e232-423a-bf5f-90903e6887c3.png" alt="Visual Studio Code" title="Visual Studio Code"/></code></td>
+			<td><code><img width="40" src="https://user-images.githubusercontent.com/25181517/183423507-c056a6f9-1ba8-4312-a350-19bcbc5a8697.png" alt="Python" title="Python"/></code></td>
+			<td><code><img width="40" src="https://user-images.githubusercontent.com/25181517/117208740-bfb78400-adf5-11eb-97bb-09072b6bedfc.png" alt="PostgreSQL" title="PostgreSQL"/></code></td>
+			<td><code><img width="40" src="https://user-images.githubusercontent.com/25181517/183896132-54262f2e-6d98-41e3-8888-e40ab5a17326.png" alt="AWS" title="AWS"/></code></td>
+		</tr>
+	</table>
+</div>
+
+---
+
 This work for a multinational company that sells various goods across the globe.
 
 Currently, their sales data is spread across many different data sources making it not easily accessible or analysable by current members of the team.
@@ -8,7 +24,7 @@ In an effort to become more data-driven, the organisation would like to make its
 
 The first goal will be to produce a system that stores the current company data in a database so that it's accessed from one centralised location and acts as a single source of truth for sales data.
 
-# Table of Contents
+## Table of Contents
 1. [Description](#description)
     - [Milestone 1](#milestone-1)
     - [Milestone 2](#milestone-2)
@@ -20,7 +36,7 @@ The first goal will be to produce a system that stores the current company data 
 5. [File structure](#file-structure)
 6. [Licence](#licence)
 
-# Description
+## Description
 
 The project is to develop a system - data pipeline - that extracts information from various sources including API requests, AWS S3 and AWS database. After the extraction the the data needs to be cleaned and uploded to a centralized database - in this case a local postgresql database - where later analysis can be performed on the data to gain valuable insights and make recommendations.
 
@@ -30,13 +46,13 @@ The extraction of further data continues with extracting information from a pdf 
 
 The script then reads the content of the database folder where raw queries are stored for the project and executes them on the database, altering the data types and adding primary and foreign keys. When this is done, the execution of the queries performed to answer business questions that stored in a csv file and also printed to the terminal.
 
-## Milestone 1
+### Milestone 1
 
 The first milestone is the setup of the github repository.
 
-![](images/git_repo.png)
+![Repository creation](images/git_repo.png)
 
-## Milestone 2
+### Milestone 2
 
 The construction of the core code files including database communication related, data cleaning, data extraction and credential reader python files.
 The pipeline depicts the ETL process where data is being extracted, transformed and loaded into the final destination.
@@ -45,15 +61,15 @@ DataExtractor class is responsible for the data acquisition from several data so
 
 The first data source is extracted from an AWS Relational Database,
 
-![](images/aws_rds.png)
+![db-read](images/aws_rds.png)
 
 with a secure connection from the DatabaseConnector class that is responsible handling all database related connections and queries.
 
-![](images/init_db.png)
+![db-engine](images/init_db.png)
 
 The connection to AWS described as follows:
 
-![](https://docs.aws.amazon.com/images/AWSEC2/latest/UserGuide/images/ec2-rds-tutorial-architecture.png)
+![aws-conn](https://docs.aws.amazon.com/images/AWSEC2/latest/UserGuide/images/ec2-rds-tutorial-architecture.png)
 
 The data is being cleaned before uploded into a local postgresql database.
 
@@ -62,17 +78,15 @@ The data ingestion continues until all the sources has been extracted, including
 This section of the project also encompassed the establishment of the local database and the creation of relevant tables to store the project's data.
 The created tables will be altered later to for the correct data type.
 
-
-
-## Milestone 3
+### Milestone 3
 
 The following picture depicts the database schema that has been created for the project.
 
-![](images/star_schema.png  )
+![star-schema](images/star_schema.png  )
 
 After setting up the star-based databse schema queries has been executed to alter the table columns data type, cleaning the data where necessary and creating new columns from the existing data.
 
-```
+```sql
 UPDATE dim_products
 SET product_price = TRIM(LEADING '£' FROM product_price);
 
@@ -84,7 +98,7 @@ SET weight_class = (CASE WHEN dm.weight < 2 THEN 'Light'
                          WHEN dm.weight >= 2 AND dm.weight < 40 THEN 'Mid_Sized'
                          WHEN dm.weight >= 40 AND dm.weight < 140 THEN 'Heavy'
                          WHEN dm.weight >= 140 THEN 'Truck_Required'
-				   END);
+   END);
 
 ALTER TABLE dim_products
 RENAME removed TO still_available;
@@ -102,55 +116,54 @@ ALTER TABLE dim_products
 
 This section also contains the addition of Primary and Foreign Keys to tables.
 
-```
+```sql
 ALTER TABLE orders_table 
     ADD CONSTRAINT constraint_fk_date_times 
     FOREIGN KEY (date_uuid)
         REFERENCES dim_date_times (date_uuid);
 ```
 
-
-## Milestone 4
+### Milestone 4
 
 Utilizing SQL queries to extract information from the data and answer business questions. By performing SQL queries on the data we answer the following questions:
 
 - How many stores the business have and in which countries?
 
-![](images/q1.png)
+![query1](images/q1.png)
 
 - Which locations currently have the most stores?
 
-![](images/q2.png)
+![query2](images/q2.png)
 
 - Which months produced the largest amount of sales?
 
-![](images/q3.png)
+![query3](images/q3.png)
 
 - How many sales are coming from online?
 
-![](images/q4.png)
+![query4](images/q4.png)
 
 - What percentage of sales come through each type of store?
 
-![](images/q5.png)
+![query5](images/q5.png)
 
 - Which month in each year produced the highest cost of sales?
 
-![](images/q6.png)
+![query6](images/q6.png)
 
 - What is out staff headcount?
 
-![](images/q7.png)
+![query7](images/q7.png)
 
 - Which German store type is selling the most?
 
-![](images/q8.png)
+![query8](images/q8.png)
 
 - How quickly is the company making sales?
 
-![](images/q9.png)
+![query9](images/q9.png)
 
-# Tools used
+## Tools used
 
 - [postgreSQL](https://www.postgresql.org/) - PostgreSQL is a powerful, open source object-relational database system
 
@@ -162,8 +175,7 @@ Utilizing SQL queries to extract information from the data and answer business q
 
 - [Amazon Simple Storage Service (Amazon S3)](https://aws.amazon.com/s3/) - It's an object storage service provides unparalleled scalability, data availability, security, and performance. It caters to customers of various sizes and industries, enabling them to securely store and safeguard any volume of data for a wide range of purposes. Whether it's data lakes, cloud-native applications, or mobile apps.
 
-
-# Installation 
+## Installation
 
 Follow the steps to start the pipeline process:
 
@@ -172,16 +184,16 @@ Follow the steps to start the pipeline process:
 3. Set up the environment using Anaconda (recommended) by typing in the CLI or shell ```conda env create -f environment.yml```. This will create the environment with the required python libraries for the project.
 4. Type the command ```python3 start_data_pipeline.py```.
 
-# How to use
+## How to use
 
 The script will automatically download, clean and upload data to the database and executes the queries that is saved locally and ready for analysis.
 The data upload to the local database is set to append by default rather then replace. If the data already exists in the database it will not overwrite it if there are constraint present.
 
-# File structure
+## File structure
 
 The files for the project can be found in the multinational-retail-data-centralisation247 folder.
 
-```
+```txt
 .
 ├── creds
 │   ├── credentials.yaml
@@ -264,6 +276,6 @@ The files for the project can be found in the multinational-retail-data-centrali
     └── start_data_pipeline.py
 ```
 
-# Licence
+## Licence
 
-CC0 1.0 Universal - see Licence.txt
+CC0 1.0 Universal - see `Licence.txt`
