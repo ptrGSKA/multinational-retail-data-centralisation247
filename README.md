@@ -39,13 +39,13 @@ The first goal will be to produce a system that stores the current company data 
 
 ## Description
 
-The project is to develop a system - data pipeline - that extracts information from various sources including API requests, AWS S3 and AWS database. After the extraction the the data needs to be cleaned and uploded to a centralized database - in this case a local postgresql database - where later analysis can be performed on the data to gain valuable insights and make recommendations.
+The project is to develop a system - data pipeline - that extracts information from various sources including API requests, AWS S3 and AWS database. After extraction, the data needs to be cleaned and uploded to a centralized database - in this case a local postgresql database - where later an analysis can be performed on the data to gain valuable insights and make recommendations.
 
-The code first inspects the local database, searching the existence of the database and creates it if doesn't exist and also creates the required tables for the data. If the database exists at the first place it still performs a check on the existence of the tables and creates the ones that are not present. After this the code starts to request information from a remote source to query about the database. Upon confirming the required table to extract it performs the extraction, saving and cleaning of the data and then it uploads it to the database.
+The code first inspects the local database, searching the existence of the database and creates it if doesn't exist and also creates the required schema for the data. If the database exists at the first place it still performs a check on the existence of the tables and creates the ones that are not present. After this the code starts to request information from a remote source to query the database. Upon confirming the required table to extract it performs the extraction, saving and cleaning of the data then it uploads it to a local database.
 
 The extraction of further data continues with extracting information from a pdf file, downloading data via an API request, AWS S3 bucket, AWS dtabase again and finally it performs an other API request to download clean and to upload the data into the local database.
 
-The script then reads the content of the database folder where raw queries are stored for the project and executes them on the database, altering the data types and adding primary and foreign keys. When this is done, the execution of the queries performed to answer business questions that stored in a csv file and also printed to the terminal.
+The script then reads the content of the database folder where raw queries are stored for the project and executes them. The first queries are altering the data types and adding primary and foreign keys. When this is done, the execution of the rest of the queries performed to answer business questions that stored in a csv file and also printed to the terminal.
 
 ### Milestone 1
 
